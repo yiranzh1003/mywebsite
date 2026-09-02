@@ -1,0 +1,31 @@
+---
+title: "Yiran Zhang-website"
+---
+
+:::::: columns
+::: {.column width="35%"}
+![](images/profile%20yiran.jpg){width="600"}
+:::
+
+:::: {.column width="65%"}
+![](images/UniversityofPennsylvania_FullLogo_RGB.png){width="240"}
+
+# Yiran Zhang
+
+University of Pennsylvaina
+
+Welcome to my personal website.
+
+### Quick Links
+
+::: {}
+`<a href="`{=html}https://github.com/yiranzh1003`"`{=html}\><i class="bi bi-github fs-3"></i></a>
+
+`<a href`{=html}="https://linkedin.com/in/USERNAME"<i class="bi bi-linkedin fs-3"></i></a>
+
+<a href="resume.qmd"><i class="bi bi-file-earmark-person-fill fs-3"></i></a>
+
+<a href="mailto:yiran20001003@gmail.com"><i class="bi bi-envelope-fill fs-3"></i></a>
+:::
+::::
+::::::
