@@ -1,0 +1,109 @@
+---
+title: "Growth, Job Openings, and Entry Barriers: Exploring Bright Outlook Careers"
+author: "yiran zhang"
+date: "2026-09-21"
+format: html
+editor: visual
+---
+
+## Introduction
+
+Choosing a career involves more than simply looking for occupations with high projected growth. A rapidly growing occupation may still offer relatively few openings, while an occupation with many openings may require very different levels of education, experience, and training. In this post, I use data from O\*NET OnLine to explore how promising career opportunities are distributed across different levels of job preparation. Specifically, I ask: \*\*How do rapid-growth and high-opening occupations differ across O\*NET Job Zones, and what does this suggest about the relationship between career opportunities and entry barriers?\*\*
+
+## Data and Method
+
+I collected data from O\*NET OnLine using the \`rvest\` package in R. I scraped two publicly accessible O\*NET pages: the Job Zone page, which classifies occupations by the level of preparation required, and the Bright Outlook page, which identifies occupations expected to grow rapidly, have numerous job openings, or both. I then joined the two datasets using O\*NET occupation codes.
+
+O\*NET Job Zones provide an ordered measure of preparation requirements: higher Job Zones generally indicate greater requirements for education, related experience, and on-the-job training. I therefore use Job Zone as a proxy for the entry barrier of an occupation.
+
+```{r}
+#| message: false
+#| warning: false
+library(rvest)
+library(dplyr)
+library(stringr)
+library(ggplot2)
+
+url <- "https://www.onetonline.org/find/zone?z=0"
+
+page <- read_html(url)
+
+tables <- page |>
+  html_elements("table") |>
+  html_table(fill = TRUE)
+
+occupations <- tables[[1]]
+
+bright_url <- "https://www.onetonline.org/find/bright?b=0"
+
+bright_page <- read_html(bright_url)
+
+bright_tables <- bright_page |>
+  html_elements("table") |>
+  html_table(fill = TRUE)
+
+bright <- bright_tables[[1]]
+
+career_data <- bright |>
+  select(Code, Occupation, Categories) |>
+  left_join(
+    occupations |> select(Code, `Job Zone`),
+    by = "Code"
+  )
+
+analysis_data <- career_data |>
+  filter(!is.na(`Job Zone`))|>
+  mutate(
+    rapid_growth = str_detect(Categories, "Rapid Growth"),
+    many_openings = str_detect(Categories, "Numerous Job Openings")
+  )
+  
+analysis_data <- analysis_data |>
+  mutate(
+    outlook_type = case_when(
+      rapid_growth & many_openings ~ "Rapid Growth + Numerous Openings",
+      rapid_growth ~ "Rapid Growth",
+      many_openings ~ "Numerous Openings"
+    )
+  )
+
+
+ggplot(
+  analysis_data,
+  aes(x = `Job Zone`, fill = outlook_type)
+) +
+  geom_bar(position = "dodge") +
+  labs(
+    title = "Bright Outlook Careers Across Job Zones",
+    x = "Job Zone",
+    y = "Number of Occupations",
+    fill = "Outlook Type"
+  ) +
+  scale_fill_manual(
+    values = c(
+      "Numerous Openings" = "#D8A48F",
+      "Rapid Growth" = "#7AA6A1",
+      "Rapid Growth + Numerous Openings" = "#8E9AAF"
+    )
+  ) +
+  theme_minimal()
+
+both_summary <- analysis_data |>
+  filter(rapid_growth & many_openings) |>
+  count(`Job Zone`) |>
+  mutate(percent = round(n / sum(n) * 100, 1))
+
+both_summary
+```
+
+## Results
+
+The distribution of Bright Outlook occupations differs noticeably across Job Zones. Rapid-growth occupations appear in every preparation level, but they are especially common in Job Zones 3 and 4. Job Zone 4 contains the largest number of rapid-growth occupations, suggesting that many expanding careers require considerable preparation rather than either minimal preparation or the highest level of specialization.
+
+A more informative pattern emerges when I focus on occupations that satisfy both Bright Outlook criteria: rapid growth and numerous job openings. Among these 32 occupations, 46.9% are in Job Zone 4, the largest share, while 34.4% are in Job Zones 1–2. Job Zone 3 accounts for 12.5%, and only 6.2% are in Job Zone 5. This suggests that strong employment opportunities are not concentrated at a single level of preparation.
+
+## Conclusion
+
+This analysis shows that strong career outlooks exist across a wide range of preparation levels. Although Job Zone 4 contains the largest share of occupations combining rapid growth with numerous openings, more than one-third of these occupations are in Job Zones 1–2. This suggests that workers do not necessarily need the highest level of education, experience, and training to enter occupations with favorable employment prospects.
+
+For job seekers, the practical takeaway is to consider both expected growth and the number of openings rather than focusing on either measure alone. Job Zone can then be used as an additional filter for the amount of preparation required. This provides a simple way to identify career opportunities that better match an individual's current qualifications and willingness to invest in additional training.
