@@ -14,39 +14,53 @@
     "text": "Resume PDF"
   },
   {
-    "objectID": "blog/posts/post1/index.html",
-    "href": "blog/posts/post1/index.html",
-    "title": "One Economy, Three Measures: Why Can GDP Be Measured Three Ways?",
+    "objectID": "blog/posts/post2/index.html",
+    "href": "blog/posts/post2/index.html",
+    "title": "Growth, Job Openings, and Entry Barriers: Exploring Bright Outlook Careers",
     "section": "",
-    "text": "Gross Domestic Product (GDP) is one of the most familiar measures in economics. But there is something about GDP accounting that initially seems strange: economists can calculate GDP in three different ways—the production approach, the expenditure approach, and the income approach—and, in principle, obtain exactly the same answer.\nAt first, these approaches seem to measure completely different things. The production approach asks how much value an economy produces. The expenditure approach asks how much is spent on final goods and services. The income approach asks how much income is generated in the production process. Why should these three numbers be equal?"
+    "text": "Choosing a career involves more than simply looking for occupations with high projected growth. A rapidly growing occupation may still offer relatively few openings, while an occupation with many openings may require very different levels of education, experience, and training. In this post, I use data from O*NET OnLine to explore how promising career opportunities are distributed across different levels of job preparation. Specifically, I ask: **How do rapid-growth and high-opening occupations differ across O*NET Job Zones, and what does this suggest about the relationship between career opportunities and entry barriers?**"
   },
   {
-    "objectID": "blog/posts/post1/index.html#three-different-questions-one-answer",
-    "href": "blog/posts/post1/index.html#three-different-questions-one-answer",
-    "title": "One Economy, Three Measures: Why Can GDP Be Measured Three Ways?",
+    "objectID": "blog/posts/post2/index.html#introduction",
+    "href": "blog/posts/post2/index.html#introduction",
+    "title": "Growth, Job Openings, and Entry Barriers: Exploring Bright Outlook Careers",
     "section": "",
-    "text": "Gross Domestic Product (GDP) is one of the most familiar measures in economics. But there is something about GDP accounting that initially seems strange: economists can calculate GDP in three different ways—the production approach, the expenditure approach, and the income approach—and, in principle, obtain exactly the same answer.\nAt first, these approaches seem to measure completely different things. The production approach asks how much value an economy produces. The expenditure approach asks how much is spent on final goods and services. The income approach asks how much income is generated in the production process. Why should these three numbers be equal?"
+    "text": "Choosing a career involves more than simply looking for occupations with high projected growth. A rapidly growing occupation may still offer relatively few openings, while an occupation with many openings may require very different levels of education, experience, and training. In this post, I use data from O*NET OnLine to explore how promising career opportunities are distributed across different levels of job preparation. Specifically, I ask: **How do rapid-growth and high-opening occupations differ across O*NET Job Zones, and what does this suggest about the relationship between career opportunities and entry barriers?**"
   },
   {
-    "objectID": "blog/posts/post1/index.html#following-one-transaction",
-    "href": "blog/posts/post1/index.html#following-one-transaction",
-    "title": "One Economy, Three Measures: Why Can GDP Be Measured Three Ways?",
-    "section": "Following One Transaction",
-    "text": "Following One Transaction\nConsider a simple example. Suppose I buy a loaf of bread from a bakery for $5. From the expenditure side, this is straightforward: I have spent $5 on a final consumption good, so it contributes $5 to consumption.\nFrom the production side, we measure the value added in producing the bread. If the bakery uses $2 of flour produced by another firm and sells the bread for $5, the bakery adds $3 of value. The flour producer contributes the other $2. Across the whole production chain, total value added is therefore still $5. This is why GDP counts value added rather than simply adding up every transaction: otherwise intermediate goods such as flour would be counted twice.\nFinally, the value created through production generates income. Across the entire production chain, the $5 of value added ultimately appears as income, such as wages and profits. Thus, the same economic activity appears as $5 of production, $5 of expenditure, and $5 of income.\n\\[\n\\text{Production} = \\text{Expenditure} = \\text{Income}\n\\]"
+    "objectID": "blog/posts/post2/index.html#data-and-method",
+    "href": "blog/posts/post2/index.html#data-and-method",
+    "title": "Growth, Job Openings, and Entry Barriers: Exploring Bright Outlook Careers",
+    "section": "Data and Method",
+    "text": "Data and Method\nI collected data from O*NET OnLine using the `rvest` package in R. I scraped two publicly accessible O*NET pages: the Job Zone page, which classifies occupations by the level of preparation required, and the Bright Outlook page, which identifies occupations expected to grow rapidly, have numerous job openings, or both. I then joined the two datasets using O*NET occupation codes.\nO*NET Job Zones provide an ordered measure of preparation requirements: higher Job Zones generally indicate greater requirements for education, related experience, and on-the-job training. I therefore use Job Zone as a proxy for the entry barrier of an occupation.\n\nlibrary(rvest)\nlibrary(dplyr)\nlibrary(stringr)\nlibrary(ggplot2)\n\nurl &lt;- \"https://www.onetonline.org/find/zone?z=0\"\n\npage &lt;- read_html(url)\n\ntables &lt;- page |&gt;\n  html_elements(\"table\") |&gt;\n  html_table(fill = TRUE)\n\noccupations &lt;- tables[[1]]\n\nbright_url &lt;- \"https://www.onetonline.org/find/bright?b=0\"\n\nbright_page &lt;- read_html(bright_url)\n\nbright_tables &lt;- bright_page |&gt;\n  html_elements(\"table\") |&gt;\n  html_table(fill = TRUE)\n\nbright &lt;- bright_tables[[1]]\n\ncareer_data &lt;- bright |&gt;\n  select(Code, Occupation, Categories) |&gt;\n  left_join(\n    occupations |&gt; select(Code, `Job Zone`),\n    by = \"Code\"\n  )\n\nanalysis_data &lt;- career_data |&gt;\n  filter(!is.na(`Job Zone`))|&gt;\n  mutate(\n    rapid_growth = str_detect(Categories, \"Rapid Growth\"),\n    many_openings = str_detect(Categories, \"Numerous Job Openings\")\n  )\n  \nanalysis_data &lt;- analysis_data |&gt;\n  mutate(\n    outlook_type = case_when(\n      rapid_growth & many_openings ~ \"Rapid Growth + Numerous Openings\",\n      rapid_growth ~ \"Rapid Growth\",\n      many_openings ~ \"Numerous Openings\"\n    )\n  )\n\n\nggplot(\n  analysis_data,\n  aes(x = `Job Zone`, fill = outlook_type)\n) +\n  geom_bar(position = \"dodge\") +\n  labs(\n    title = \"Bright Outlook Careers Across Job Zones\",\n    x = \"Job Zone\",\n    y = \"Number of Occupations\",\n    fill = \"Outlook Type\"\n  ) +\n  scale_fill_manual(\n    values = c(\n      \"Numerous Openings\" = \"#D8A48F\",\n      \"Rapid Growth\" = \"#7AA6A1\",\n      \"Rapid Growth + Numerous Openings\" = \"#8E9AAF\"\n    )\n  ) +\n  theme_minimal()\n\n\n\n\n\n\n\nboth_summary &lt;- analysis_data |&gt;\n  filter(rapid_growth & many_openings) |&gt;\n  count(`Job Zone`) |&gt;\n  mutate(percent = round(n / sum(n) * 100, 1))\n\nboth_summary\n\n# A tibble: 4 × 3\n  `Job Zone`     n percent\n  &lt;chr&gt;      &lt;int&gt;   &lt;dbl&gt;\n1 1-2           11    34.4\n2 3              4    12.5\n3 4             15    46.9\n4 5              2     6.2"
   },
   {
-    "objectID": "blog/posts/post1/index.html#what-if-nobody-buys-the-bread",
-    "href": "blog/posts/post1/index.html#what-if-nobody-buys-the-bread",
-    "title": "One Economy, Three Measures: Why Can GDP Be Measured Three Ways?",
-    "section": "What If Nobody Buys the Bread?",
-    "text": "What If Nobody Buys the Bread?\nNow consider a less intuitive case. Suppose the $5 loaf is produced, but nobody buys it before the end of the accounting period. Has GDP fallen by $5?\nNo. The production approach has not changed: the bread was still produced during the period. What changes is its classification under the expenditure approach. Instead of appearing as $5 of consumption, the unsold bread is recorded as $5 of inventory investment. Therefore, total GDP is unchanged.\n\\[\nC \\downarrow \\$5,\\qquad I_{\\text{inventory}} \\uparrow \\$5\n\\]\nThe income approach also remains consistent. Income generated by production does not require the final product to have already been sold for cash. The unsold bread becomes an inventory asset of the firm. In national accounting, what matters is that production occurred during the period.\nThis reveals an important distinction: GDP measures current production, not simply current sales or cash receipts."
+    "objectID": "blog/posts/post2/index.html#results",
+    "href": "blog/posts/post2/index.html#results",
+    "title": "Growth, Job Openings, and Entry Barriers: Exploring Bright Outlook Careers",
+    "section": "Results",
+    "text": "Results\nThe distribution of Bright Outlook occupations differs noticeably across Job Zones. Rapid-growth occupations appear in every preparation level, but they are especially common in Job Zones 3 and 4. Job Zone 4 contains the largest number of rapid-growth occupations, suggesting that many expanding careers require considerable preparation rather than either minimal preparation or the highest level of specialization.\nA more informative pattern emerges when I focus on occupations that satisfy both Bright Outlook criteria: rapid growth and numerous job openings. Among these 32 occupations, 46.9% are in Job Zone 4, the largest share, while 34.4% are in Job Zones 1–2. Job Zone 3 accounts for 12.5%, and only 6.2% are in Job Zone 5. This suggests that strong employment opportunities are not concentrated at a single level of preparation."
   },
   {
-    "objectID": "blog/posts/post1/index.html#the-takeaway",
-    "href": "blog/posts/post1/index.html#the-takeaway",
-    "title": "One Economy, Three Measures: Why Can GDP Be Measured Three Ways?",
-    "section": "The Takeaway",
-    "text": "The Takeaway\nThe three approaches to GDP are not three unrelated ways of estimating the economy. They are three perspectives on the same economic activity. Production creates value, expenditure purchases final output, and the production process generates income.\nOnce we follow a transaction through the economy, the identity becomes much less mysterious:\n\\[\n\\boxed{\\text{Production} = \\text{Expenditure} = \\text{Income}}\n\\]\nThe equality is not a coincidence. It is built into the way economic transactions connect buyers, producers, and income earners."
+    "objectID": "blog/posts/post2/index.html#conclusion",
+    "href": "blog/posts/post2/index.html#conclusion",
+    "title": "Growth, Job Openings, and Entry Barriers: Exploring Bright Outlook Careers",
+    "section": "Conclusion",
+    "text": "Conclusion\nThis analysis shows that strong career outlooks exist across a wide range of preparation levels. Although Job Zone 4 contains the largest share of occupations combining rapid growth with numerous openings, more than one-third of these occupations are in Job Zones 1–2. This suggests that workers do not necessarily need the highest level of education, experience, and training to enter occupations with favorable employment prospects.\nFor job seekers, the practical takeaway is to consider both expected growth and the number of openings rather than focusing on either measure alone. Job Zone can then be used as an additional filter for the amount of preparation required. This provides a simple way to identify career opportunities that better match an individual’s current qualifications and willingness to invest in additional training."
+  },
+  {
+    "objectID": "blog/index.html",
+    "href": "blog/index.html",
+    "title": "Blog",
+    "section": "",
+    "text": "Growth, Job Openings, and Entry Barriers: Exploring Bright Outlook Careers\n\n\n\n\n\n\n\n\nSep 21, 2026\n\n\nyiran zhang\n\n\n\n\n\n\n\n\n\n\n\n\nOne Economy, Three Measures: Why Can GDP Be Measured Three Ways?\n\n\n\n\n\n\n\n\nSep 14, 2026\n\n\n\n\n\nNo matching items"
+  },
+  {
+    "objectID": "about.html",
+    "href": "about.html",
+    "title": "About",
+    "section": "",
+    "text": "About this site\n\n1 + 1\n\n[1] 2"
   },
   {
     "objectID": "bio.html",
@@ -84,18 +98,39 @@
     "text": "student@email.edu"
   },
   {
-    "objectID": "about.html",
-    "href": "about.html",
-    "title": "About",
+    "objectID": "blog/posts/post1/index.html",
+    "href": "blog/posts/post1/index.html",
+    "title": "One Economy, Three Measures: Why Can GDP Be Measured Three Ways?",
     "section": "",
-    "text": "About this site\n\n1 + 1\n\n[1] 2"
+    "text": "Gross Domestic Product (GDP) is one of the most familiar measures in economics. But there is something about GDP accounting that initially seems strange: economists can calculate GDP in three different ways—the production approach, the expenditure approach, and the income approach—and, in principle, obtain exactly the same answer.\nAt first, these approaches seem to measure completely different things. The production approach asks how much value an economy produces. The expenditure approach asks how much is spent on final goods and services. The income approach asks how much income is generated in the production process. Why should these three numbers be equal?"
   },
   {
-    "objectID": "blog/index.html",
-    "href": "blog/index.html",
-    "title": "Blog",
+    "objectID": "blog/posts/post1/index.html#three-different-questions-one-answer",
+    "href": "blog/posts/post1/index.html#three-different-questions-one-answer",
+    "title": "One Economy, Three Measures: Why Can GDP Be Measured Three Ways?",
     "section": "",
-    "text": "One Economy, Three Measures: Why Can GDP Be Measured Three Ways?\n\n\n\n\n\n\n\n\nSep 14, 2026\n\n\n\n\n\nNo matching items"
+    "text": "Gross Domestic Product (GDP) is one of the most familiar measures in economics. But there is something about GDP accounting that initially seems strange: economists can calculate GDP in three different ways—the production approach, the expenditure approach, and the income approach—and, in principle, obtain exactly the same answer.\nAt first, these approaches seem to measure completely different things. The production approach asks how much value an economy produces. The expenditure approach asks how much is spent on final goods and services. The income approach asks how much income is generated in the production process. Why should these three numbers be equal?"
+  },
+  {
+    "objectID": "blog/posts/post1/index.html#following-one-transaction",
+    "href": "blog/posts/post1/index.html#following-one-transaction",
+    "title": "One Economy, Three Measures: Why Can GDP Be Measured Three Ways?",
+    "section": "Following One Transaction",
+    "text": "Following One Transaction\nConsider a simple example. Suppose I buy a loaf of bread from a bakery for $5. From the expenditure side, this is straightforward: I have spent $5 on a final consumption good, so it contributes $5 to consumption.\nFrom the production side, we measure the value added in producing the bread. If the bakery uses $2 of flour produced by another firm and sells the bread for $5, the bakery adds $3 of value. The flour producer contributes the other $2. Across the whole production chain, total value added is therefore still $5. This is why GDP counts value added rather than simply adding up every transaction: otherwise intermediate goods such as flour would be counted twice.\nFinally, the value created through production generates income. Across the entire production chain, the $5 of value added ultimately appears as income, such as wages and profits. Thus, the same economic activity appears as $5 of production, $5 of expenditure, and $5 of income.\n\\[\n\\text{Production} = \\text{Expenditure} = \\text{Income}\n\\]"
+  },
+  {
+    "objectID": "blog/posts/post1/index.html#what-if-nobody-buys-the-bread",
+    "href": "blog/posts/post1/index.html#what-if-nobody-buys-the-bread",
+    "title": "One Economy, Three Measures: Why Can GDP Be Measured Three Ways?",
+    "section": "What If Nobody Buys the Bread?",
+    "text": "What If Nobody Buys the Bread?\nNow consider a less intuitive case. Suppose the $5 loaf is produced, but nobody buys it before the end of the accounting period. Has GDP fallen by $5?\nNo. The production approach has not changed: the bread was still produced during the period. What changes is its classification under the expenditure approach. Instead of appearing as $5 of consumption, the unsold bread is recorded as $5 of inventory investment. Therefore, total GDP is unchanged.\n\\[\nC \\downarrow \\$5,\\qquad I_{\\text{inventory}} \\uparrow \\$5\n\\]\nThe income approach also remains consistent. Income generated by production does not require the final product to have already been sold for cash. The unsold bread becomes an inventory asset of the firm. In national accounting, what matters is that production occurred during the period.\nThis reveals an important distinction: GDP measures current production, not simply current sales or cash receipts."
+  },
+  {
+    "objectID": "blog/posts/post1/index.html#the-takeaway",
+    "href": "blog/posts/post1/index.html#the-takeaway",
+    "title": "One Economy, Three Measures: Why Can GDP Be Measured Three Ways?",
+    "section": "The Takeaway",
+    "text": "The Takeaway\nThe three approaches to GDP are not three unrelated ways of estimating the economy. They are three perspectives on the same economic activity. Production creates value, expenditure purchases final output, and the production process generates income.\nOnce we follow a transaction through the economy, the identity becomes much less mysterious:\n\\[\n\\boxed{\\text{Production} = \\text{Expenditure} = \\text{Income}}\n\\]\nThe equality is not a coincidence. It is built into the way economic transactions connect buyers, producers, and income earners."
   },
   {
     "objectID": "index.html",

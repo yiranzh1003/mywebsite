@@ -2,26 +2,30 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
     <loc>https://yiranzh1003.github.io/mywebsite/resume.html</loc>
-    <lastmod>2026-09-02T20:51:40.236Z</lastmod>
+    <lastmod>2026-09-14T23:53:06.187Z</lastmod>
   </url>
   <url>
-    <loc>https://yiranzh1003.github.io/mywebsite/blog/posts/post1/index.html</loc>
-    <lastmod>2026-09-14T22:26:42.354Z</lastmod>
-  </url>
-  <url>
-    <loc>https://yiranzh1003.github.io/mywebsite/bio.html</loc>
-    <lastmod>2026-09-02T20:51:40.182Z</lastmod>
-  </url>
-  <url>
-    <loc>https://yiranzh1003.github.io/mywebsite/about.html</loc>
-    <lastmod>2026-09-02T20:51:40.181Z</lastmod>
+    <loc>https://yiranzh1003.github.io/mywebsite/blog/posts/post2/index.html</loc>
+    <lastmod>2026-09-21T23:43:04.184Z</lastmod>
   </url>
   <url>
     <loc>https://yiranzh1003.github.io/mywebsite/blog/index.html</loc>
-    <lastmod>2026-09-02T20:51:40.185Z</lastmod>
+    <lastmod>2026-09-14T23:53:08.019Z</lastmod>
+  </url>
+  <url>
+    <loc>https://yiranzh1003.github.io/mywebsite/about.html</loc>
+    <lastmod>2026-09-14T23:53:05.813Z</lastmod>
+  </url>
+  <url>
+    <loc>https://yiranzh1003.github.io/mywebsite/bio.html</loc>
+    <lastmod>2026-09-14T23:53:05.815Z</lastmod>
+  </url>
+  <url>
+    <loc>https://yiranzh1003.github.io/mywebsite/blog/posts/post1/index.html</loc>
+    <lastmod>2026-09-14T23:53:08.019Z</lastmod>
   </url>
   <url>
     <loc>https://yiranzh1003.github.io/mywebsite/index.html</loc>
-    <lastmod>2026-09-02T20:51:40.236Z</lastmod>
+    <lastmod>2026-09-14T23:53:05.815Z</lastmod>
   </url>
 </urlset>
