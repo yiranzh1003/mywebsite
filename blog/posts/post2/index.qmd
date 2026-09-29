@@ -17,6 +17,7 @@ I collected data from O\*NET OnLine using the \`rvest\` package in R. I scraped 
 O\*NET Job Zones provide an ordered measure of preparation requirements: higher Job Zones generally indicate greater requirements for education, related experience, and on-the-job training. I therefore use Job Zone as a proxy for the entry barrier of an occupation.
 
 ```{r}
+#| echo: false
 #| message: false
 #| warning: false
 library(rvest)
@@ -93,7 +94,7 @@ both_summary <- analysis_data |>
   count(`Job Zone`) |>
   mutate(percent = round(n / sum(n) * 100, 1))
 
-both_summary
+
 ```
 
 ## Results
