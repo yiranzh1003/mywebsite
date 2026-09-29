@@ -29,6 +29,7 @@ cps <- read_ipums_micro(ddi)
 ```
 
 ```{r}
+#| echo: false
 #| output: false
 analysis_sample <- cps %>%
   filter(
@@ -55,6 +56,7 @@ analysis_sample %>%
 ```
 
 ```{r}
+#| echo: false
 #| output: false
 earnings_summary <- analysis_sample %>%
   group_by(gender, parenthood) %>%
@@ -81,6 +83,7 @@ work_summary
 ```
 
 ```{r}
+#| echo: false
 #| output: false
 earnings_gap <- earnings_summary %>%
   select(gender, parenthood, weighted_mean_income) %>%
