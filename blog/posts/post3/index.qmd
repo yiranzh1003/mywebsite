@@ -1,0 +1,195 @@
+---
+title: "Parenthood and the Gender Earnings Gap"
+author: "Yiran Zhang"
+format: html
+editor: visual
+---
+## Introduction
+
+The gender earnings gap is a persistent feature of the U.S. labor market, but the size of the gap may differ across workers with different family circumstances. In this post, I use data from the 2025 Annual Social and Economic Supplement (ASEC) of the Current Population Survey to examine whether the gender earnings gap differs between workers with and without children in the household.
+
+Rather than estimating the causal effect of parenthood, this analysis provides a descriptive comparison of earnings and work patterns across men and women with and without children in the household.
+
+## Data and Methods
+
+The data come from the 2025 CPS ASEC, accessed through IPUMS CPS. I restrict the sample to adults ages 25 to 54 with positive wage and salary income who usually worked at least 35 hours per week and worked at least 50 weeks during the previous year. After these restrictions, the analysis sample contains 34,996 individuals.
+
+Parenthood is defined using the number of one's own children living in the household (`NCHILD`). Individuals with at least one own child in the household are classified as parents, while those with no own children in the household are classified as having no children.
+
+I use the CPS ASEC person weight (`ASECWT`) to calculate weighted mean wage and salary income. I also compare usual weekly hours and weeks worked across the four groups to examine whether differences in work time accompany the observed earnings differences.
+```{r}
+#| echo: false
+#| message: false
+#| warning: false
+
+library(tidyverse)
+library(ipumsr)
+ddi <- read_ipums_ddi("cps_00001.xml")
+cps <- read_ipums_micro(ddi)
+```
+
+```{r}
+#| output: false
+analysis_sample <- cps %>%
+  filter(
+    AGE >= 25,
+    AGE <= 54,
+    INCWAGE > 0,
+    INCWAGE < 99999999,
+    UHRSWORKLY >= 35,
+    UHRSWORKLY < 999,
+    WKSWORK1 >= 50
+  ) %>%
+  mutate(
+    gender = case_when(
+      SEX == 1 ~ "Men",
+      SEX == 2 ~ "Women"
+    ),
+    parenthood = case_when(
+      NCHILD == 0 ~ "No children",
+      NCHILD > 0 ~ "Parent"
+    )
+  )
+analysis_sample %>%
+  count(gender, parenthood)
+```
+
+```{r}
+#| output: false
+earnings_summary <- analysis_sample %>%
+  group_by(gender, parenthood) %>%
+  summarize(
+    weighted_mean_income = weighted.mean(INCWAGE, ASECWT),
+    n = n()
+  )
+
+earnings_summary
+```
+
+```{r}
+#| echo: false
+#| output: false
+work_summary <- analysis_sample %>%
+  group_by(gender, parenthood) %>%
+  summarize(
+    mean_weekly_hours = weighted.mean(UHRSWORKLY, ASECWT),
+    mean_weeks_worked = weighted.mean(WKSWORK1, ASECWT),
+    .groups = "drop"
+  )
+
+work_summary
+```
+
+```{r}
+#| output: false
+earnings_gap <- earnings_summary %>%
+  select(gender, parenthood, weighted_mean_income) %>%
+  pivot_wider(
+    names_from = gender,
+    values_from = weighted_mean_income
+  ) %>%
+  mutate(
+    gap_percent = (1 - Women / Men) * 100
+  )
+
+earnings_gap
+```
+
+
+## Results
+
+The earnings comparison shows a clear difference by parenthood status. Among workers without children in the household, weighted mean annual wage and salary income is \$85,376 for men and \$76,826 for women, corresponding to a gender earnings gap of about 10%. Among parents, mean income is \$112,339 for men and \$79,745 for women, producing a much larger gap of about 29%.
+
+The difference is driven primarily by the substantially higher average earnings of fathers. Compared with men without children, fathers earn about \$27,000 more on average, while the difference between mothers and women without children is much smaller, at about \$3,000.
+
+```{r}
+#| echo: false
+ggplot(earnings_summary,
+       aes(x = parenthood,
+           y = weighted_mean_income,
+           fill = gender)) +
+  geom_col(position = position_dodge(width = 0.9)) +
+  geom_text(
+    aes(label = scales::dollar(weighted_mean_income, accuracy = 1)),
+    position = position_dodge(width = 0.9),
+    vjust = -0.4,
+    size = 3.5
+  ) +
+  scale_y_continuous(
+    labels = scales::dollar_format(),
+    expand = expansion(mult = c(0, 0.12))
+  ) +
+  labs(
+    title = "Gender Earnings Gaps Are Larger Among Parents",
+    subtitle = "Weighted mean annual wage and salary income among full-year workers",
+    x = NULL,
+    y = "Mean annual wage and salary income",
+    fill = "Gender",
+    caption = "Source: IPUMS CPS ASEC 2025"
+  ) +
+  theme_minimal()
+```
+
+Weekly work hours differ only modestly across the four groups. Men without children work an average of 42.8 hours per week, compared with 41.8 hours for women without children. Among parents, men work about 43.8 hours per week, while women work about 41.8 hours. All four groups worked approximately 52 weeks during the previous year. These patterns suggest that differences in weeks worked are unlikely to explain the substantially larger earnings gap among parents, although differences in weekly hours may contribute somewhat.
+
+```{r}
+#| echo: false
+ggplot(work_summary,
+       aes(x = parenthood,
+           y = mean_weekly_hours,
+           fill = gender)) +
+  geom_col(position = position_dodge(width = 0.9)) +
+  geom_text(
+    aes(label = round(mean_weekly_hours, 1)),
+    position = position_dodge(width = 0.9),
+    vjust = -0.4,
+    size = 3.5
+  ) +
+  scale_y_continuous(
+    limits = c(0, 50),
+    expand = expansion(mult = c(0, 0.08))
+  ) +
+  labs(
+    title = "Weekly Work Hours Differ Modestly by Gender",
+    subtitle = "Average usual weekly hours among full-year workers",
+    x = NULL,
+    y = "Mean weekly hours",
+    fill = "Gender",
+    caption = "Source: IPUMS CPS ASEC 2025"
+  ) +
+  theme_minimal()
+```
+Expressed directly as a percentage gap, the contrast is substantial: women without children earn about 10% less than men without children on average, while women who are parents earn about 29% less than men who are parents. The much larger gap among parents is therefore driven mainly by the sharp increase in men's average earnings associated with parenthood in this descriptive comparison.
+
+```{r}
+#| echo: false
+ggplot(earnings_gap,
+       aes(x = parenthood,
+           y = gap_percent)) +
+  geom_col(width = 0.6, fill = "#F8766D") +
+  geom_text(
+    aes(label = paste0(round(gap_percent, 1), "%")),
+    vjust = -0.4,
+    size = 4
+  ) +
+  scale_y_continuous(
+    limits = c(0, 35),
+    labels = scales::label_percent(scale = 1)
+  ) +
+  labs(
+    title = "The Gender Earnings Gap Is Much Larger Among Parents",
+    subtitle = "Percentage difference between men's and women's weighted mean earnings",
+    x = NULL,
+    y = "Gender earnings gap",
+    caption = "Source: IPUMS CPS ASEC 2025"
+  ) +
+  theme_minimal()
+```
+
+## Conclusion
+
+Using the 2025 CPS ASEC, this analysis finds that the gender earnings gap among full-year workers differs substantially by parenthood status. The gap is about 10% among workers without children in the household, compared with about 29% among parents. This larger gap mainly reflects substantially higher average earnings among fathers, while mothers' average earnings are only modestly higher than those of women without children.
+
+These results are descriptive rather than causal. Parenthood may be associated with other differences in occupation, industry, education, work experience, or other characteristics that are not accounted for here. Nevertheless, the comparison illustrates how the gender earnings gap can vary considerably across workers with different family circumstances.
+
+
