@@ -1,9 +1,11 @@
 ---
 title: "Parenthood and the Gender Earnings Gap"
 author: "Yiran Zhang"
+date: "2026-09-28"
 format: html
 editor: visual
 ---
+
 ## Introduction
 
 The gender earnings gap is a persistent feature of the U.S. labor market, but the size of the gap may differ across workers with different family circumstances. In this post, I use data from the 2025 Annual Social and Economic Supplement (ASEC) of the Current Population Survey to examine whether the gender earnings gap differs between workers with and without children in the household.
@@ -17,6 +19,7 @@ The data come from the 2025 CPS ASEC, accessed through IPUMS CPS. I restrict the
 Parenthood is defined using the number of one's own children living in the household (`NCHILD`). Individuals with at least one own child in the household are classified as parents, while those with no own children in the household are classified as having no children.
 
 I use the CPS ASEC person weight (`ASECWT`) to calculate weighted mean wage and salary income. I also compare usual weekly hours and weeks worked across the four groups to examine whether differences in work time accompany the observed earnings differences.
+
 ```{r}
 #| echo: false
 #| message: false
@@ -98,7 +101,6 @@ earnings_gap <- earnings_summary %>%
 earnings_gap
 ```
 
-
 ## Results
 
 The earnings comparison shows a clear difference by parenthood status. Among workers without children in the household, weighted mean annual wage and salary income is \$85,376 for men and \$76,826 for women, corresponding to a gender earnings gap of about 10%. Among parents, mean income is \$112,339 for men and \$79,745 for women, producing a much larger gap of about 29%.
@@ -162,6 +164,7 @@ ggplot(work_summary,
   ) +
   theme_minimal()
 ```
+
 Expressed directly as a percentage gap, the contrast is substantial: women without children earn about 10% less than men without children on average, while women who are parents earn about 29% less than men who are parents. The much larger gap among parents is therefore driven mainly by the sharp increase in men's average earnings associated with parenthood in this descriptive comparison.
 
 ```{r}
@@ -194,5 +197,3 @@ ggplot(earnings_gap,
 Using the 2025 CPS ASEC, this analysis finds that the gender earnings gap among full-year workers differs substantially by parenthood status. The gap is about 10% among workers without children in the household, compared with about 29% among parents. This larger gap mainly reflects substantially higher average earnings among fathers, while mothers' average earnings are only modestly higher than those of women without children.
 
 These results are descriptive rather than causal. Parenthood may be associated with other differences in occupation, industry, education, work experience, or other characteristics that are not accounted for here. Nevertheless, the comparison illustrates how the gender earnings gap can vary considerably across workers with different family circumstances.
-
-
