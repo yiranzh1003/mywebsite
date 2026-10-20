@@ -1,0 +1,127 @@
+{
+  "period": "2020-2024",
+  "all_tracts": 408,
+  "eligible_tracts": 376,
+  "excluded_tracts": 32,
+  "rent_split": 1370.5,
+  "groups": [
+    {
+      "group": "Higher-rent half",
+      "tracts": 188,
+      "eligible_households": 149797.0,
+      "burdened_households": 73672.0,
+      "burden_pct": 49.18122525818274,
+      "median_tract_rent": 1650.5
+    },
+    {
+      "group": "Lower-rent half",
+      "tracts": 188,
+      "eligible_households": 153973.0,
+      "burdened_households": 84776.0,
+      "burden_pct": 55.05900385132458,
+      "median_tract_rent": 1160.5
+    }
+  ],
+  "correlation": -0.2563493779530756,
+  "examples": [
+    {
+      "geoid": "14000US42101000806",
+      "rent": 2454.0,
+      "total": 1270.0,
+      "not_computed": 89.0,
+      "valid": 1181.0,
+      "burden_count": 299.0,
+      "severe_count": 146.0,
+      "burden": 25.31752751905165,
+      "eligible": true,
+      "rent_group": "Higher-rent half"
+    },
+    {
+      "geoid": "14000US42101003600",
+      "rent": 553.0,
+      "total": 1560.0,
+      "not_computed": 125.0,
+      "valid": 1435.0,
+      "burden_count": 839.0,
+      "severe_count": 527.0,
+      "burden": 58.46689895470383,
+      "eligible": true,
+      "rent_group": "Lower-rent half"
+    }
+  ],
+  "sensitivity": [
+    {
+      "min_households": 0,
+      "n": 383,
+      "lower_pct": 55.12151203461409,
+      "higher_pct": 49.150869141797514
+    },
+    {
+      "min_households": 50,
+      "n": 383,
+      "lower_pct": 55.12151203461409,
+      "higher_pct": 49.150869141797514
+    },
+    {
+      "min_households": 100,
+      "n": 376,
+      "lower_pct": 55.05900385132458,
+      "higher_pct": 49.18122525818274
+    },
+    {
+      "min_households": 200,
+      "n": 357,
+      "lower_pct": 54.879731993299835,
+      "higher_pct": 49.308262529896005
+    }
+  ],
+  "quartiles": [
+    {
+      "quartile": 1,
+      "tracts": 94,
+      "rent_min": 361.0,
+      "rent_max": 1160.0,
+      "eligible_households": 69998.0,
+      "below30": 43.452670076287895,
+      "from30to50": 23.12066059030258,
+      "atleast50": 33.42666933340953
+    },
+    {
+      "quartile": 2,
+      "tracts": 94,
+      "rent_min": 1161.0,
+      "rent_max": 1370.0,
+      "eligible_households": 83975.0,
+      "below30": 46.181601667162845,
+      "from30to50": 22.5590949687407,
+      "atleast50": 31.259303364096457
+    },
+    {
+      "quartile": 3,
+      "tracts": 94,
+      "rent_min": 1371.0,
+      "rent_max": 1649.0,
+      "eligible_households": 67441.0,
+      "below30": 42.62688868789016,
+      "from30to50": 23.33743568452425,
+      "atleast50": 34.03567562758559
+    },
+    {
+      "quartile": 4,
+      "tracts": 94,
+      "rent_min": 1652.0,
+      "rent_max": 3056.0,
+      "eligible_households": 82356.0,
+      "below30": 57.52707756569042,
+      "from30to50": 21.66205255233377,
+      "atleast50": 20.810869881975812
+    }
+  ],
+  "quartile_edges": [
+    361.0,
+    1160.75,
+    1370.5,
+    1649.75,
+    3056.0
+  ]
+}

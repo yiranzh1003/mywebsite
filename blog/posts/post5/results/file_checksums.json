@@ -1,0 +1,20 @@
+{
+  "README.md": "d194851eb8438245a000370a504fb804223aef864e4354ccef65f42a453c0423",
+  "index.qmd": "1d0c2f6ae8e843812a18d7dec842992225a4ea3fd687332e7690b1a3969cb1b1",
+  "article.md": "755f0d4e606e4a37fcc0d6ee8063fe5bfcf9046f61d4ba8ff24463a36d927a59",
+  "article_template.md": "8931ff4b76e4875cc5410f42bf8462359226b898db313c7ab4faef7eb1842a19",
+  "requirements.txt": "8ff5281571a34cce59a5b7fbe1eebbd796d8e1bf901461ca11542d0f6d362d2b",
+  "preview.html": "80096755d3286598849b0db6fe7e010d6953dd8d411f50a0fb2f236a36a86076",
+  "code/analyze.py": "d38a66101b01f55b2087994ed151afffa7552bd3c6ca83c9d7450f98f0215fd9",
+  "code/analyze.R": "81d354a4cdf96548451a40f45487396aa7d2dc50600080f5003116676cb26910",
+  "code/build_preview.py": "efb5bf2536bcfbaab31ca7eac98a99ca0ccfc362b3f5fe48603ff09d30b1d989",
+  "results/quartile_burden.csv": "3d8049a952c4ec14d0dab0d7774604bd8dd358f8ebb5ff8e757da58c5537f730",
+  "results/group_summary.csv": "77ea430bff5bc1949c6a83d0230e09202daa38e58b37310ab06c348caf046434",
+  "results/summary.json": "1e3253c3b5486ec2bca3e197bead747a580264eaf337afb044541d964899ad0f",
+  "results/figures/rent_burden_scatter.png": "b40ec445e4037331f1d64ff387374537607b60d316c338f8a8db731c8fab843b",
+  "results/figures/quartile_burden.png": "420e8635d08504df9dd03bf839d62e766d17a63bdf4c1d7012b1686af1844576",
+  "results/figures/rent_burden_maps.png": "326a59accd9def5b8e2e33ee196bbfbe9e66cf93e4211ab7a4dd60333a78ab32",
+  "data/raw/tracts_tiger2024.geojson": "54ddbe92166e66c4c94186696f95affef1b8168a43b50bfd2f09b56302292713",
+  "data/raw/acs2024_5yr.json": "fee057fe803491be606555a78ab7834b3660c6436d6da6a9bd2ee5e7101dcd86",
+  "data/processed/tract_statistics.csv": "2f28814adae93e70e18e4a7d5105a710afeb72640cea9afaed39651db1c767d4"
+}
