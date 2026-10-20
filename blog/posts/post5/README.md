@@ -7,9 +7,9 @@ This project compares median gross rent with rent burden across Philadelphia cen
 | File or folder | Purpose |
 |---|---|
 | `index.qmd` | Website-ready Quarto article, with no visible analysis code |
-| `article.md` | Same article as readable Markdown |
+| `article.txt` | Same article as readable Markdown |
 | `preview.html` | Standalone preview with embedded figures; open in a browser |
-| `article_template.md` | Article source; selected numeric results are substituted by Python |
+| `article_template.txt` | Article source; selected numeric results are substituted by Python |
 | `code/analyze.py` | Complete download/cache, cleaning, joining, calculation, figures, and article generation |
 | `code/build_preview.py` | Rebuilds the standalone HTML preview after updating the analysis |
 | `code/analyze.R` | Alternative R calculation, checks against the shipped results, and separate R figures |
