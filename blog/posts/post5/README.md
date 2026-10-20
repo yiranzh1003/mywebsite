@@ -22,7 +22,7 @@ This project compares median gross rent with rent burden across Philadelphia cen
 | `results/figures/` | Programmatically generated PNGs embedded in the article |
 | `requirements.txt` | Python package versions used for validation |
 
-## Reproduce in Python (tested)
+## Reproduce in Python 
 
 Python 3.12 was used. From this folder (not its parent), run:
 
@@ -41,17 +41,6 @@ python code/analyze.py --refresh
 Refreshing requires internet access to `api.censusreporter.org`; the script checks JSON syntax before replacing the cache. The source release is fixed to `acs2024_5yr`, so refreshing does not silently switch years. No Census API key is needed for this route. Source retrieval date: October 19, 2026 (New York).
 
 Expected results: 408 raw tracts; 376 eligible; 188 tracts per rent group; split at $1,370.50; burden rates 55.0590% in the lower-rent half and 49.1812% in the higher-rent half. The script checks unique identifiers, full boundary matches, release identity, percentage bounds, and successful article substitutions. It saves tables, figures and article text automatically. The two example figures are rounded to one decimal place in the article. The group threshold is rounded to $1,370 in the text using Python's standard rounding; use the exact split in all calculations.
-
-## Reproduce in RStudio (alternative; not executed in the creation environment)
-
-Open this folder as an RStudio project, or set its location as your working directory. Install the dependencies once:
-
-```r
-install.packages(c("jsonlite", "sf", "ggplot2"))
-source("code/analyze.R")
-```
-
-The R script uses the cached raw files, calculates the same statistics, compares burden rates against the shipped CSV to tolerance 1e-8, and saves files with `_R` suffixes. It projects polygons to EPSG:2272 (Pennsylvania South, US survey feet). It does not replace the article's verified Python figures or regenerate the article. Package installation, particularly `sf`, may require system spatial libraries on Linux; Windows generally supports binary installation. R execution still needs verification on your machine.
 
 ## Data sources and variable definitions
 
