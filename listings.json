@@ -2,6 +2,9 @@
   {
     "listing": "/blog/index.html",
     "items": [
+      "/blog/posts/post5/article.html",
+      "/blog/posts/post5/article_template.html",
+      "/blog/posts/post5/index.html",
       "/blog/posts/post4/index.html",
       "/blog/posts/post3/index.html",
       "/blog/posts/post2/index.html",

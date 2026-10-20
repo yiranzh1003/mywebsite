@@ -7,7 +7,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 
-<title>article – Yiran Zhang</title>
+<title>article_template – Yiran Zhang</title>
 <style>
 /* Default styles provided by pandoc.
 ** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
@@ -126,38 +126,37 @@ ul.task-list li input[type="checkbox"] {
 
 
 
-<section id="why-the-house-price-is-only-half-the-story" class="level1">
-<h1>Why the House Price Is Only Half the Story</h1>
-<p>A house has a price tag, but a buyer with a mortgage must also ask a different question: what will it cost each month? That distinction matters when interest rates change. A household can face a much larger payment even if the home it wants has not become proportionately more expensive. How much did rising prices and mortgage rates together increase the cost of financing a U.S. home between January 2019 and December 2024?</p>
-<p>To explore that question, I combine three series from FRED: the Case-Shiller national home price index, Freddie Mac’s 30-year fixed mortgage rate, and the Consumer Price Index. The mortgage rates are averaged by month to match the other series. This is a descriptive comparison of national trends, rather than an estimate of the causal effect of monetary policy.</p>
-<p>The first figure shows why looking at a dollar price alone can be misleading. By December 2024, nominal home prices were 58.3% above their January 2019 level. After adjustment for consumer-price inflation, the increase was smaller, at 25.9%. General inflation therefore explains part of the increase, but not all of it: housing also became more expensive relative to the broader consumer basket. Both series start at 100 so their changes can be compared directly. These are national averages, which can conceal substantial local differences.</p>
+<p>Searching for an apartment in Philadelphia, it is natural to start with the monthly rent. A cheaper neighborhood seems like the obvious place to find affordable housing. But affordable for whom? A lower rent can still absorb a large share of a household’s income. Mapping both rent levels and renters’ financial burdens reveals why a city’s cheapest areas are not necessarily its least strained.</p>
 <div class="quarto-figure quarto-figure-center">
 <figure class="figure">
-<p><img src="results/figures/01_prices.png" class="img-fluid figure-img" alt="Line chart comparing nominal and CPI-adjusted home price indices, both rebased to January 2019 equals 100."></p>
-<figcaption>Figure 1. Nominal and inflation-adjusted home prices, January 2019–December 2024.</figcaption>
+<p><img src="results/figures/rent_burden_maps.png" class="img-fluid figure-img"></p>
+<figcaption>Two maps compare median monthly gross rent and the share of rent-burdened households across Philadelphia census tracts.</figcaption>
 </figure>
 </div>
-<p>Prices are only the first part of the financing decision. The second figure shows that borrowing costs initially fell, then rose sharply after 2021. The monthly average mortgage rate increased from 4.5% in January 2019 to 6.7% in December 2024. For a given loan balance, a higher rate increases the payment needed to repay the mortgage over the same period. Lower rates early in the pandemic temporarily cushioned the effect of rising prices; later, buyers faced both a larger purchase price and more expensive credit.</p>
+<p>The maps tell different stories about the same city. Higher rents cluster around Center City, with additional expensive pockets elsewhere. Yet relatively light burdens appear in parts of that central area, while many tracts farther north and west show heavier burdens despite lower rents. The contrast matters because a rent map alone could direct attention away from places where residents struggle to pay. The same tract boundaries appear in both panels; darker blue means higher rent, whereas darker orange means a greater share of burdened renters.</p>
+<p>I compare Philadelphia census tracts, small statistical areas that do not necessarily follow neighborhood boundaries, using the U.S. Census Bureau’s <a href="https://data.census.gov/table/ACSDT5Y2024.B25070">2020–2024 American Community Survey</a>. These are five-year estimates, not a snapshot of 2024 or today’s advertised rents. Monthly gross rent includes rent and utilities. I define a rent-burdened household as one spending at least 30% of its income on those costs: for example, $900 out of $3,000 a month. The burden rate is the share of renter households meeting that threshold among those whose rent-to-income ratio can be calculated. It is not a ratio of neighborhood medians.</p>
+<p>To make the comparison concrete, I retain {{n}} tracts with available rent and burden measures and at least 100 estimated renter households with a calculable ratio. This removes {{excluded}} tracts; gray areas are excluded, not places with zero rent or no hardship. Splitting the retained tracts at their median rent of approximately ${{cut}}, the lower-rent half has a burden rate of <strong>{{low}}%</strong>, compared with <strong>{{high}}%</strong> in the higher-rent half. These rates pool household counts within each group, so a tract with more renters contributes more than a small tract.</p>
+<p>But crossing the 30% threshold is only part of the story. A household spending 31% of its income on housing faces a different budget constraint from one spending 60%. To distinguish those experiences, I divide the same tracts into four groups by median rent and separate renters into three burden categories. Each group contains approximately the same number of tracts; the percentages still pool household counts.</p>
 <div class="quarto-figure quarto-figure-center">
 <figure class="figure">
-<p><img src="results/figures/02_rates.png" class="img-fluid figure-img" alt="Monthly mortgage rate line showing the decline through 2020–2021 and the subsequent rise."></p>
-<figcaption>Figure 2. Monthly average 30-year fixed mortgage rates.</figcaption>
+<p><img src="results/figures/quartile_burden.png" class="img-fluid figure-img"></p>
+<figcaption>Household rent burdens by tract rent quartile, separating income shares below 30%, 30% to under 50%, and at least 50%.</figcaption>
 </figure>
 </div>
-<p>The third figure brings these two forces together. Consider an illustrative home worth $300,000 in January 2019. Let its value subsequently move with the national price index, assume a 20% down payment, and calculate principal and interest on a new 30-year fixed loan in each month. The estimated payment rises from $1,211 to $2,456, an increase of about 102.8%. This is a comparison of hypothetical new loans, not the changing payment on one existing fixed-rate mortgage.</p>
+<p>In the lowest-rent quarter, <strong>{{q1_severe}}%</strong> of renters with a computed ratio spend at least half their income on rent and utilities, compared with <strong>{{q4_severe}}%</strong> in the highest-rent quarter. For these households, half or less of their income remains for food, transportation, health care, and everything else. Yet the pattern is not a smooth decline: the third rent group has a slightly higher severe-burden estimate than the lowest-rent group. Lower rent does not guarantee relief, and higher rent does not uniformly imply less pressure.</p>
+<p>Two tracts illustrate the mismatch. Tract 36, southwest of City Hall, has a median gross rent of ${{example_low_rent}}, yet {{example_low_burden}}% of renters with a computed ratio are burdened. Tract 8.06, near Center City, has a median rent of ${{example_high_rent}} but a burden rate of {{example_high_burden}}%. These examples illustrate the pattern rather than establish a ranking: they are survey estimates, and households and housing units differ across locations.</p>
 <div class="quarto-figure quarto-figure-center">
 <figure class="figure">
-<p><img src="results/figures/03_payments.png" class="img-fluid figure-img" alt="Two payment paths comparing changing prices and mortgage rates against changing prices with a fixed January 2019 interest rate."></p>
-<figcaption>Figure 3. Estimated payments with observed rates and with the January 2019 rate held fixed.</figcaption>
+<p><img src="results/figures/rent_burden_scatter.png" class="img-fluid figure-img"></p>
+<figcaption>A scatterplot shows considerable variation in rent burden at similar rent levels, highlighting tracts 36 and 8.06.</figcaption>
 </figure>
 </div>
-<p>For comparison, the dashed line holds the interest rate at its January 2019 value while allowing home prices to change. Under that scenario, the December 2024 payment would be approximately $1,917. The gap between the lines isolates the mechanical effect of changing the rate for the same month’s loan balance. It does not predict what house prices would actually have been if rates had stayed low: prices and financing conditions can influence one another.</p>
-<p>The dollar payments also need context. Adjusting for consumer-price inflation, the increase in the estimated payment is about 61.3%, still substantial. But this calculation excludes property taxes, insurance, maintenance, closing costs, and changes in household income. The $300,000 starting value is an illustrative assumption, not an estimated national median. Holding the down-payment percentage constant also requires more cash as prices rise. Consequently, the figures measure financing pressure rather than a complete payment-to-income affordability ratio.</p>
-<p>The takeaway is that slower price growth alone does not guarantee relief for new buyers. The price of the home and the price of borrowing jointly determine the monthly commitment. Evaluating a purchase therefore requires looking beyond the listing price to financing terms, upfront cash, and income. These figures show how that distinction became especially consequential between 2019 and 2024.</p>
-<p>Data: <a href="https://fred.stlouisfed.org/series/CSUSHPINSA">Case-Shiller home price index</a>, <a href="https://fred.stlouisfed.org/series/MORTGAGE30US">Freddie Mac mortgage rate</a>, and <a href="https://fred.stlouisfed.org/series/CPIAUCSL">BLS Consumer Price Index</a>, retrieved from FRED on October 6, 2026. Code, data, and replication instructions: <a href="https://github.com/yiranzh1003/mywebsite/tree/main/blog/posts/post4">GitHub repository</a>.</p>
+<p>The scatterplot reinforces that caution. Each dot represents a tract, and neighborhoods with similar median rents can have very different burdens. Income differences and the sorting of households across locations could help explain the pattern, but these maps cannot identify their individual contributions. They do not show that higher rents reduce hardship, or that moving a particular household would improve its situation. Housing size, subsidies, student populations, and household composition may also matter.</p>
+<p>There are limits to the comparison. Excluding ratios that cannot be computed means the rates do not cover all renter households; households reporting no or negative income and units without cash rent can fall outside that denominator. Small-area estimates also have sampling uncertainty. The count cutoff is not a guarantee of statistical precision. I therefore emphasize broad patterns rather than small differences between neighboring tracts or rent groups.</p>
+<p>Philadelphia’s affordability problem is consequently easy to misread from prices alone. For residents comparing apartments, the relevant calculation is rent plus utilities relative to their own income. For identifying areas that may need support, burden rates add information that a low-rent label misses. Lower rents matter, but the map shows why they cannot, by themselves, tell us whether local renters can comfortably pay.</p>
+<p><em>Data: U.S. Census Bureau, ACS 2020–2024, tables B25064 and B25070, retrieved through <a href="https://censusreporter.org/">Census Reporter</a>; tract geometry from its TIGER 2024 endpoint. Analysis code, cached source data, and replication instructions accompany this article.</em></p>
 
 
-</section>
 
 </main> <!-- /main -->
 <script id="quarto-html-after-body" type="application/javascript">
@@ -233,7 +232,7 @@ ul.task-list li input[type="checkbox"] {
     }
       var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
       var mailtoRegex = new RegExp(/^mailto:/);
-        var filterRegex = new RegExp('/' + window.location.host + '/');
+        var filterRegex = new RegExp("https:\/\/yiranzh1003\.github\.io\/mywebsite\/");
       var isInternal = (href) => {
           return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
       }
