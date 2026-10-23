@@ -1,0 +1,13 @@
+{
+  "extract": "J366590",
+  "people": 85536,
+  "pairs": 14876,
+  "balanced_pairs": 768,
+  "fathers": 592,
+  "birth_min": 1948.0,
+  "birth_max": 1981.0,
+  "income_records": 229598,
+  "father_observations_median": 9.0,
+  "young_observations_median": 4.0,
+  "middle_observations_median": 2.0
+}

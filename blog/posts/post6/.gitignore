@@ -1,0 +1,7 @@
+data/raw/J*
+data/*.pkl
+data/.*.pkl.*
+data/*.sqlite*
+results/tables/matched_sample_private.csv
+preview.html
+__pycache__/
