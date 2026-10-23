@@ -14,130 +14,46 @@
     "text": "Resume PDF"
   },
   {
-    "objectID": "blog/posts/post5/index.html",
-    "href": "blog/posts/post5/index.html",
-    "title": "Does Lower Rent Mean Affordable Housing?",
+    "objectID": "blog/posts/post6/index.html",
+    "href": "blog/posts/post6/index.html",
+    "title": "How Income Measurement Changes the Father–Son Earnings Link",
     "section": "",
-    "text": "Searching for an apartment in Philadelphia, it is natural to start with the monthly rent. A cheaper neighborhood seems like the obvious place to find affordable housing. But affordable for whom? A lower rent can still absorb a large share of a household’s income. Mapping both rent levels and renters’ financial burdens reveals why a city’s cheapest areas are not necessarily its least strained.\n\n\n\nTwo maps compare median monthly gross rent and the share of rent-burdened households across Philadelphia census tracts.\n\n\nThe maps tell different stories about the same city. Higher rents cluster around Center City, with additional expensive pockets elsewhere. Yet relatively light burdens appear in parts of that central area, while many tracts farther north and west show heavier burdens despite lower rents. The contrast matters because a rent map alone could direct attention away from places where residents struggle to pay. The same tract boundaries appear in both panels; darker blue means higher rent, whereas darker orange means a greater share of burdened renters.\nI compare Philadelphia census tracts, small statistical areas that do not necessarily follow neighborhood boundaries, using the U.S. Census Bureau’s 2020–2024 American Community Survey. These are five-year estimates, not a snapshot of 2024 or today’s advertised rents. Monthly gross rent includes rent and utilities. I define a rent-burdened household as one spending at least 30% of its income on those costs: for example, $900 out of $3,000 a month. The burden rate is the share of renter households meeting that threshold among those whose rent-to-income ratio can be calculated. It is not a ratio of neighborhood medians.\nTo make the comparison concrete, I retain 376 tracts with available rent and burden measures and at least 100 estimated renter households with a calculable ratio. This removes 32 tracts; gray areas are excluded, not places with zero rent or no hardship. Splitting the retained tracts at their median rent of approximately $1,370, the lower-rent half has a burden rate of 55.1%, compared with 49.2% in the higher-rent half. These rates pool household counts within each group, so a tract with more renters contributes more than a small tract.\nBut crossing the 30% threshold is only part of the story. A household spending 31% of its income on housing faces a different budget constraint from one spending 60%. To distinguish those experiences, I divide the same tracts into four groups by median rent and separate renters into three burden categories. Each group contains approximately the same number of tracts; the percentages still pool household counts.\n\n\n\nHousehold rent burdens by tract rent quartile, separating income shares below 30%, 30% to under 50%, and at least 50%.\n\n\nIn the lowest-rent quarter, 33.4% of renters with a computed ratio spend at least half their income on rent and utilities, compared with 20.8% in the highest-rent quarter. For these households, half or less of their income remains for food, transportation, health care, and everything else. Yet the pattern is not a smooth decline: the third rent group has a slightly higher severe-burden estimate than the lowest-rent group. Lower rent does not guarantee relief, and higher rent does not uniformly imply less pressure.\nTwo tracts illustrate the mismatch. Tract 36, southwest of City Hall, has a median gross rent of $553, yet 58.5% of renters with a computed ratio are burdened. Tract 8.06, near Center City, has a median rent of $2,454 but a burden rate of 25.3%. These examples illustrate the pattern rather than establish a ranking: they are survey estimates, and households and housing units differ across locations.\n\n\n\nA scatterplot shows considerable variation in rent burden at similar rent levels, highlighting tracts 36 and 8.06.\n\n\nThe scatterplot reinforces that caution. Each dot represents a tract, and neighborhoods with similar median rents can have very different burdens. Income differences and the sorting of households across locations could help explain the pattern, but these maps cannot identify their individual contributions. They do not show that higher rents reduce hardship, or that moving a particular household would improve its situation. Housing size, subsidies, student populations, and household composition may also matter.\nThere are limits to the comparison. Excluding ratios that cannot be computed means the rates do not cover all renter households; households reporting no or negative income and units without cash rent can fall outside that denominator. Small-area estimates also have sampling uncertainty. The count cutoff is not a guarantee of statistical precision. I therefore emphasize broad patterns rather than small differences between neighboring tracts or rent groups.\nPhiladelphia’s affordability problem is consequently easy to misread from prices alone. For residents comparing apartments, the relevant calculation is rent plus utilities relative to their own income. For identifying areas that may need support, burden rates add information that a low-rent label misses. Lower rents matter, but the map shows why they cannot, by themselves, tell us whether local renters can comfortably pay.\nData: U.S. Census Bureau, ACS 2020–2024, tables B25064 and B25070, retrieved through Census Reporter; tract geometry from its TIGER 2024 endpoint. Analysis code, cached source data, and replication instructions accompany this article."
+    "text": "How much does a father’s income tell us about his son’s income? Before estimating that relationship, we must decide when to measure earnings. A salary early in a career can give a different picture from earnings in middle age. I use PSID data to ask how the estimated father–son link changes with the son’s age and with the number of income observations used."
   },
   {
-    "objectID": "blog/posts/post3/index.html",
-    "href": "blog/posts/post3/index.html",
-    "title": "Parenthood and the Gender Earnings Gap",
+    "objectID": "blog/posts/post6/index.html#matching-fathers-and-sons",
+    "href": "blog/posts/post6/index.html#matching-fathers-and-sons",
+    "title": "How Income Measurement Changes the Father–Son Earnings Link",
+    "section": "Matching fathers and sons",
+    "text": "Matching fathers and sons\nI focus on biological fathers and sons to keep this parent–child matching demonstration manageable. Mothers and daughters are outside the scope of this example, so the results describe father–son wage persistence rather than parent–child relationships more broadly.\nThe PSID follows individuals across survey waves. I rename ER30001 and ER30002 as family_id and person_no; together they identify a person. ER32016 and ER32017 become father_family_id and father_person_no, identifying the biological father. ER32000 records sex. A family ID alone is insufficient because relatives can share it. I combine each person’s two identifiers into a stable person_id.\nI load the extract into Python, create a SQLite connection with sqlite3.connect(), and write a people table and an income table using DataFrame.to_sql(). The following query constructs the father–son pairs:\nSELECT c.person_id AS child_id, p.person_id AS father_id\nFROM people AS c\nJOIN people AS p\n  ON c.father_family_id = p.family_id\n AND c.father_person_no = p.person_no\nWHERE c.sex = 1 AND p.sex = 1\n  AND c.father_family_id &gt; 0 AND c.father_person_no &gt; 0;\nSELECT chooses the output columns. JOIN connects two copies of the person table using both father identifiers. WHERE restricts the sample to men with recorded father identifiers. The full script checks that each son has at most one matched father."
+  },
+  {
+    "objectID": "blog/posts/post6/index.html#from-annual-wages-to-longer-run-earnings",
+    "href": "blog/posts/post6/index.html#from-annual-wages-to-longer-run-earnings",
+    "title": "How Income Measurement Changes the Father–Son Earnings Link",
+    "section": "From annual wages to longer-run earnings",
+    "text": "From annual wages to longer-run earnings\nI use annual wages and salaries reported in survey waves from 1970 through 2023, generally referring to the previous calendar year. Earlier wage variables are brackets rather than dollar amounts, so I omit them. I convert wages into 2022 dollars using annual CPI, exclude nonpositive and special-coded amounts, and retain current household heads/reference persons. This prevents assigning a household head’s wages to every family member. The Data Center links family wage variables to individual records using each wave’s family interview number. That changing household identifier serves a different purpose from the stable identifiers used to match fathers and sons.\nTo use other years, retain the person and father identifiers, then request each chosen wave’s wages, age, relationship, sequence number, and family interview number. For example, the 1970 wave uses V1191 for wages and ER30046 for age. data/variable_map.csv lists all wave-specific fields. Update the script’s years and corresponding income_vars together, check codebook definitions and special codes, and provide CPI for the income years. The father–son join stays the same.\nFathers’ wages are measured at ages 35–44. Sons’ wages are measured at 25–29 and again at 40–44. I approximate income-year age as interview age minus one. To calculate fathers’ averages in SQL:\nSELECT person_id, AVG(earnings) AS father_mean,\n       COUNT(*) AS father_n\nFROM income\nWHERE age BETWEEN 35 AND 44\nGROUP BY person_id\nHAVING COUNT(*) &gt;= 3;\nGROUP BY collects records for each person; AVG and COUNT aggregate them. HAVING keeps fathers with at least three valid observations. Analogous queries require at least two observations in each son’s age window. These are averages of observed positive-wage years, not necessarily consecutive years: PSID became biennial after 1997.\nThe resulting balanced sample contains 768 father–son pairs and 592 distinct fathers. Every specification uses these same pairs. For a single-year measure, I select the observation nearest age 40 for fathers, 27 for younger sons, and 42 for middle-aged sons; an earlier wave breaks ties."
+  },
+  {
+    "objectID": "blog/posts/post6/index.html#what-changes-when-earnings-are-measured-differently",
+    "href": "blog/posts/post6/index.html#what-changes-when-earnings-are-measured-differently",
+    "title": "How Income Measurement Changes the Father–Son Earnings Link",
+    "section": "What changes when earnings are measured differently?",
+    "text": "What changes when earnings are measured differently?\nI read the SQL results into pandas with pd.read_sql_query(), then regress log son wages on log father wages, an intercept, and a linear son birth-cohort control. The coefficient on log father wages is the intergenerational elasticity, or IGE. A coefficient of 0.4 means that 1% higher father wages are associated with approximately 0.4% higher son wages; this is an association, not a causal effect.\n\n\n\nFather–son wage elasticities using single-year and averaged income.\n\n\nAt ages 25–29, the IGE is 0.284 using single-year wages and 0.310 using averages. At ages 40–44, it is 0.310 and 0.514, respectively. Averaging changes the middle-age estimate substantially. The intervals in the figure allow for siblings sharing a father.\nTwo measurement issues matter. Temporary wage fluctuations make one year a noisy proxy for long-run earnings; averaging can reduce that noise. Life-cycle bias is different: younger workers with different eventual earnings may have different wage-growth paths. The higher averaged estimate at ages 40–44 illustrates sensitivity to measurement age, consistent with Haider and Solon (2006). Averaging early-career wages alone does not solve this problem.\nThese unweighted estimates describe a selected sample of men with positive wages, head/reference-person status, and long follow-up. They are not a national mobility estimate. Lifetime earnings are unobserved, so the middle-age estimate is not a known truth, and the comparisons do not isolate every source of bias. The practical lesson is to match people carefully, average repeated observations, and check measurement age before interpreting an IGE."
+  },
+  {
+    "objectID": "blog/posts/post6/index.html#sources-and-replication",
+    "href": "blog/posts/post6/index.html#sources-and-replication",
+    "title": "How Income Measurement Changes the Father–Son Earnings Link",
+    "section": "Sources and replication",
+    "text": "Sources and replication\n\nPSID Data Center, public-use extract J366590; University of Michigan, Survey Research Center. Variable definitions are documented in the PSID codebook; the private download includes a copy.\nFederal Reserve Bank of Minneapolis CPI historical table, annual CPI series compiled from BLS historical data.\nHaider, S., and G. Solon (2006). Life-Cycle Variation in the Association between Current and Lifetime Earnings. American Economic Review, 96(4), 1308–1320.\n\nFull Python and SQL files, variable mappings, and instructions are in the accompanying repository files. PSID raw records are kept out of the public repository."
+  },
+  {
+    "objectID": "blog/posts/post4/index.html",
+    "href": "blog/posts/post4/index.html",
+    "title": "Why the House Price Is Only Half the Story",
     "section": "",
-    "text": "The gender earnings gap is a persistent feature of the U.S. labor market, but the size of the gap may differ across workers with different family circumstances. In this post, I use data from the 2025 Annual Social and Economic Supplement (ASEC) of the Current Population Survey to examine whether the gender earnings gap differs between workers with and without children in the household.\nRather than estimating the causal effect of parenthood, this analysis provides a descriptive comparison of earnings and work patterns across men and women with and without children in the household."
-  },
-  {
-    "objectID": "blog/posts/post3/index.html#introduction",
-    "href": "blog/posts/post3/index.html#introduction",
-    "title": "Parenthood and the Gender Earnings Gap",
-    "section": "",
-    "text": "The gender earnings gap is a persistent feature of the U.S. labor market, but the size of the gap may differ across workers with different family circumstances. In this post, I use data from the 2025 Annual Social and Economic Supplement (ASEC) of the Current Population Survey to examine whether the gender earnings gap differs between workers with and without children in the household.\nRather than estimating the causal effect of parenthood, this analysis provides a descriptive comparison of earnings and work patterns across men and women with and without children in the household."
-  },
-  {
-    "objectID": "blog/posts/post3/index.html#data-and-methods",
-    "href": "blog/posts/post3/index.html#data-and-methods",
-    "title": "Parenthood and the Gender Earnings Gap",
-    "section": "Data and Methods",
-    "text": "Data and Methods\nThe data come from the 2025 CPS ASEC, accessed through IPUMS CPS. I restrict the sample to adults ages 25 to 54 with positive wage and salary income who usually worked at least 35 hours per week and worked at least 50 weeks during the previous year. After these restrictions, the analysis sample contains 34,996 individuals.\nParenthood is defined using the number of one’s own children living in the household (NCHILD). Individuals with at least one own child in the household are classified as parents, while those with no own children in the household are classified as having no children.\nI use the CPS ASEC person weight (ASECWT) to calculate weighted mean wage and salary income. I also compare usual weekly hours and weeks worked across the four groups to examine whether differences in work time accompany the observed earnings differences."
-  },
-  {
-    "objectID": "blog/posts/post3/index.html#results",
-    "href": "blog/posts/post3/index.html#results",
-    "title": "Parenthood and the Gender Earnings Gap",
-    "section": "Results",
-    "text": "Results\nThe earnings comparison shows a clear difference by parenthood status. Among workers without children in the household, weighted mean annual wage and salary income is $85,376 for men and $76,826 for women, corresponding to a gender earnings gap of about 10%. Among parents, mean income is $112,339 for men and $79,745 for women, producing a much larger gap of about 29%.\nThe difference is driven primarily by the substantially higher average earnings of fathers. Compared with men without children, fathers earn about $27,000 more on average, while the difference between mothers and women without children is much smaller, at about $3,000.\n\n\n\n\n\n\n\n\n\nWeekly work hours differ only modestly across the four groups. Men without children work an average of 42.8 hours per week, compared with 41.8 hours for women without children. Among parents, men work about 43.8 hours per week, while women work about 41.8 hours. All four groups worked approximately 52 weeks during the previous year. These patterns suggest that differences in weeks worked are unlikely to explain the substantially larger earnings gap among parents, although differences in weekly hours may contribute somewhat.\n\n\n\n\n\n\n\n\n\nExpressed directly as a percentage gap, the contrast is substantial: women without children earn about 10% less than men without children on average, while women who are parents earn about 29% less than men who are parents. The much larger gap among parents is therefore driven mainly by the sharp increase in men’s average earnings associated with parenthood in this descriptive comparison."
-  },
-  {
-    "objectID": "blog/posts/post3/index.html#conclusion",
-    "href": "blog/posts/post3/index.html#conclusion",
-    "title": "Parenthood and the Gender Earnings Gap",
-    "section": "Conclusion",
-    "text": "Conclusion\nUsing the 2025 CPS ASEC, this analysis finds that the gender earnings gap among full-year workers differs substantially by parenthood status. The gap is about 10% among workers without children in the household, compared with about 29% among parents. This larger gap mainly reflects substantially higher average earnings among fathers, while mothers’ average earnings are only modestly higher than those of women without children.\nThese results are descriptive rather than causal. Parenthood may be associated with other differences in occupation, industry, education, work experience, or other characteristics that are not accounted for here. Nevertheless, the comparison illustrates how the gender earnings gap can vary considerably across workers with different family circumstances."
-  },
-  {
-    "objectID": "blog/posts/post1/index.html",
-    "href": "blog/posts/post1/index.html",
-    "title": "One Economy, Three Measures: Why Can GDP Be Measured Three Ways?",
-    "section": "",
-    "text": "Gross Domestic Product (GDP) is one of the most familiar measures in economics. But there is something about GDP accounting that initially seems strange: economists can calculate GDP in three different ways—the production approach, the expenditure approach, and the income approach—and, in principle, obtain exactly the same answer.\nAt first, these approaches seem to measure completely different things. The production approach asks how much value an economy produces. The expenditure approach asks how much is spent on final goods and services. The income approach asks how much income is generated in the production process. Why should these three numbers be equal?"
-  },
-  {
-    "objectID": "blog/posts/post1/index.html#three-different-questions-one-answer",
-    "href": "blog/posts/post1/index.html#three-different-questions-one-answer",
-    "title": "One Economy, Three Measures: Why Can GDP Be Measured Three Ways?",
-    "section": "",
-    "text": "Gross Domestic Product (GDP) is one of the most familiar measures in economics. But there is something about GDP accounting that initially seems strange: economists can calculate GDP in three different ways—the production approach, the expenditure approach, and the income approach—and, in principle, obtain exactly the same answer.\nAt first, these approaches seem to measure completely different things. The production approach asks how much value an economy produces. The expenditure approach asks how much is spent on final goods and services. The income approach asks how much income is generated in the production process. Why should these three numbers be equal?"
-  },
-  {
-    "objectID": "blog/posts/post1/index.html#following-one-transaction",
-    "href": "blog/posts/post1/index.html#following-one-transaction",
-    "title": "One Economy, Three Measures: Why Can GDP Be Measured Three Ways?",
-    "section": "Following One Transaction",
-    "text": "Following One Transaction\nConsider a simple example. Suppose I buy a loaf of bread from a bakery for $5. From the expenditure side, this is straightforward: I have spent $5 on a final consumption good, so it contributes $5 to consumption.\nFrom the production side, we measure the value added in producing the bread. If the bakery uses $2 of flour produced by another firm and sells the bread for $5, the bakery adds $3 of value. The flour producer contributes the other $2. Across the whole production chain, total value added is therefore still $5. This is why GDP counts value added rather than simply adding up every transaction: otherwise intermediate goods such as flour would be counted twice.\nFinally, the value created through production generates income. Across the entire production chain, the $5 of value added ultimately appears as income, such as wages and profits. Thus, the same economic activity appears as $5 of production, $5 of expenditure, and $5 of income.\n\\[\n\\text{Production} = \\text{Expenditure} = \\text{Income}\n\\]"
-  },
-  {
-    "objectID": "blog/posts/post1/index.html#what-if-nobody-buys-the-bread",
-    "href": "blog/posts/post1/index.html#what-if-nobody-buys-the-bread",
-    "title": "One Economy, Three Measures: Why Can GDP Be Measured Three Ways?",
-    "section": "What If Nobody Buys the Bread?",
-    "text": "What If Nobody Buys the Bread?\nNow consider a less intuitive case. Suppose the $5 loaf is produced, but nobody buys it before the end of the accounting period. Has GDP fallen by $5?\nNo. The production approach has not changed: the bread was still produced during the period. What changes is its classification under the expenditure approach. Instead of appearing as $5 of consumption, the unsold bread is recorded as $5 of inventory investment. Therefore, total GDP is unchanged.\n\\[\nC \\downarrow \\$5,\\qquad I_{\\text{inventory}} \\uparrow \\$5\n\\]\nThe income approach also remains consistent. Income generated by production does not require the final product to have already been sold for cash. The unsold bread becomes an inventory asset of the firm. In national accounting, what matters is that production occurred during the period.\nThis reveals an important distinction: GDP measures current production, not simply current sales or cash receipts."
-  },
-  {
-    "objectID": "blog/posts/post1/index.html#the-takeaway",
-    "href": "blog/posts/post1/index.html#the-takeaway",
-    "title": "One Economy, Three Measures: Why Can GDP Be Measured Three Ways?",
-    "section": "The Takeaway",
-    "text": "The Takeaway\nThe three approaches to GDP are not three unrelated ways of estimating the economy. They are three perspectives on the same economic activity. Production creates value, expenditure purchases final output, and the production process generates income.\nOnce we follow a transaction through the economy, the identity becomes much less mysterious:\n\\[\n\\boxed{\\text{Production} = \\text{Expenditure} = \\text{Income}}\n\\]\nThe equality is not a coincidence. It is built into the way economic transactions connect buyers, producers, and income earners."
-  },
-  {
-    "objectID": "bio.html",
-    "href": "bio.html",
-    "title": "About Me",
-    "section": "",
-    "text": "Write a short biography here.\nInclude:"
-  },
-  {
-    "objectID": "bio.html#education",
-    "href": "bio.html#education",
-    "title": "About Me",
-    "section": "Education",
-    "text": "Education\nMaster of Applied Economics and Data Science, University of Pennsylvania (expaceted 2027) Batelor of Science, University Name 2026"
-  },
-  {
-    "objectID": "bio.html#interests",
-    "href": "bio.html#interests",
-    "title": "About Me",
-    "section": "Interests",
-    "text": "Interests\n\nEconometrics\nMachine Learning\nData Analysis"
-  },
-  {
-    "objectID": "bio.html#contact",
-    "href": "bio.html#contact",
-    "title": "About Me",
-    "section": "Contact",
-    "text": "Contact"
-  },
-  {
-    "objectID": "bio.html#studentemail.edu",
-    "href": "bio.html#studentemail.edu",
-    "title": "About Me",
-    "section": "student@email.edu",
-    "text": "student@email.edu"
-  },
-  {
-    "objectID": "about.html",
-    "href": "about.html",
-    "title": "About",
-    "section": "",
-    "text": "About this site\n\n1 + 1\n\n[1] 2"
-  },
-  {
-    "objectID": "blog/index.html",
-    "href": "blog/index.html",
-    "title": "Blog",
-    "section": "",
-    "text": "Does Lower Rent Mean Affordable Housing?\n\n\nMapping rent and renter burdens in Philadelphia\n\n\n\n\n\n\n\n\nOct 19, 2026\n\n\nYiran Zhang\n\n\n\n\n\n\n\n\n\n\n\n\nWhy the House Price Is Only Half the Story\n\n\n\n\n\n\n\n\n\n\n\nOct 6, 2026\n\n\nYiran Zhang\n\n\n\n\n\n\n\n\n\n\n\n\nParenthood and the Gender Earnings Gap\n\n\n\n\n\n\n\n\n\n\n\nSep 28, 2026\n\n\nYiran Zhang\n\n\n\n\n\n\n\n\n\n\n\n\nGrowth, Job Openings, and Entry Barriers: Exploring Bright Outlook Careers\n\n\n\n\n\n\n\n\n\n\n\nSep 21, 2026\n\n\nyiran zhang\n\n\n\n\n\n\n\n\n\n\n\n\nOne Economy, Three Measures: Why Can GDP Be Measured Three Ways?\n\n\n\n\n\n\n\n\n\n\n\nSep 14, 2026\n\n\n\n\n\nNo matching items"
+    "text": "Between January 2019 and December 2024, U.S. home prices rose by about 58.3%, while the estimated monthly mortgage payment for an illustrative new purchase rose by about 102.8%. Why was the increase in the payment so much larger? For buyers who borrow, the listing price is only part of the decision: the interest rate also determines what they must pay each month. Comparing home prices and mortgage rates helps explain how the cost of financing a home changed over this period.\nTo explore that question, I combine three series from FRED: the Case-Shiller national home price index, Freddie Mac’s 30-year fixed mortgage rate, and the Consumer Price Index. The mortgage rates are averaged by month to match the other series. This is a descriptive comparison of national trends, rather than an estimate of the causal effect of monetary policy.\nThe first figure shows why looking at a dollar price alone can be misleading. By December 2024, nominal home prices were 58.3% above their January 2019 level. After adjustment for consumer-price inflation, the increase was smaller, at 25.9%. The smaller inflation-adjusted increase shows that home prices rose faster than the broader consumer basket, even after accounting for the decline in the purchasing power of a dollar. Both series start at 100 so their changes can be compared directly. These are national averages, which can conceal substantial local differences.\n\n\n\nFigure 1. Nominal and inflation-adjusted home prices, January 2019–December 2024.\n\n\nPrices are only the first part of the financing decision. The second figure shows that borrowing costs initially fell, then rose sharply after 2021. The monthly average mortgage rate increased from 4.5% in January 2019 to 6.7% in December 2024. For a given loan balance, a higher rate increases the payment needed to repay the mortgage over the same period. Lower rates early in the pandemic temporarily cushioned the effect of rising prices; later, buyers faced both a larger purchase price and more expensive credit.\n\n\n\nFigure 2. Monthly average 30-year fixed mortgage rates.\n\n\nThe third figure brings these two forces together. Consider an illustrative home worth $300,000 in January 2019. Let its value subsequently move with the national price index, assume a 20% down payment, and calculate principal and interest on a new 30-year fixed loan in each month. The estimated payment rises from $1,211 to $2,456, an increase of about 102.8%. This is a comparison of hypothetical new loans, not the changing payment on one existing fixed-rate mortgage.\n\n\n\nFigure 3. Estimated payments with observed rates and with the January 2019 rate held fixed.\n\n\nFor comparison, the dashed line holds the interest rate at its January 2019 value while allowing home prices to change. Under that scenario, the December 2024 payment would be approximately $1,917. The gap between the lines isolates the mechanical effect of changing the rate for the same month’s loan balance. It does not predict what house prices would actually have been if rates had stayed low: prices and financing conditions can influence one another.\nThe dollar payments also need context. Adjusting for consumer-price inflation, the increase in the estimated payment is about 61.3%, still substantial. But this calculation excludes property taxes, insurance, maintenance, closing costs, and changes in household income. The $300,000 starting value is an illustrative assumption, not an estimated national median. Holding the down-payment percentage constant also requires more cash as prices rise. Consequently, the figures measure financing pressure rather than a complete payment-to-income affordability ratio.\nThe takeaway is that slower price growth alone does not guarantee relief for new buyers. The price of the home and the price of borrowing jointly determine the monthly commitment. Evaluating a purchase therefore requires looking beyond the listing price to financing terms, upfront cash, and income. These figures show how that distinction became especially consequential between 2019 and 2024.\nData: Case-Shiller home price index, Freddie Mac mortgage rate, and BLS Consumer Price Index, retrieved from FRED on October 6, 2026. Code, data, and replication instructions: GitHub repository."
   },
   {
     "objectID": "blog/posts/post2/index.html",
@@ -175,11 +91,130 @@
     "text": "Conclusion\nThis analysis shows that strong career outlooks exist across a wide range of preparation levels. Although Job Zone 4 contains the largest share of occupations combining rapid growth with numerous openings, more than one-third of these occupations are in Job Zones 1–2. This suggests that workers do not necessarily need the highest level of education, experience, and training to enter occupations with favorable employment prospects.\nFor job seekers, the practical takeaway is to consider both expected growth and the number of openings rather than focusing on either measure alone. Job Zone can then be used as an additional filter for the amount of preparation required. This provides a simple way to identify career opportunities that better match an individual’s current qualifications and willingness to invest in additional training."
   },
   {
-    "objectID": "blog/posts/post4/index.html",
-    "href": "blog/posts/post4/index.html",
-    "title": "Why the House Price Is Only Half the Story",
+    "objectID": "blog/index.html",
+    "href": "blog/index.html",
+    "title": "Blog",
     "section": "",
-    "text": "Between January 2019 and December 2024, U.S. home prices rose by about 58.3%, while the estimated monthly mortgage payment for an illustrative new purchase rose by about 102.8%. Why was the increase in the payment so much larger? For buyers who borrow, the listing price is only part of the decision: the interest rate also determines what they must pay each month. Comparing home prices and mortgage rates helps explain how the cost of financing a home changed over this period.\nTo explore that question, I combine three series from FRED: the Case-Shiller national home price index, Freddie Mac’s 30-year fixed mortgage rate, and the Consumer Price Index. The mortgage rates are averaged by month to match the other series. This is a descriptive comparison of national trends, rather than an estimate of the causal effect of monetary policy.\nThe first figure shows why looking at a dollar price alone can be misleading. By December 2024, nominal home prices were 58.3% above their January 2019 level. After adjustment for consumer-price inflation, the increase was smaller, at 25.9%. The smaller inflation-adjusted increase shows that home prices rose faster than the broader consumer basket, even after accounting for the decline in the purchasing power of a dollar. Both series start at 100 so their changes can be compared directly. These are national averages, which can conceal substantial local differences.\n\n\n\nFigure 1. Nominal and inflation-adjusted home prices, January 2019–December 2024.\n\n\nPrices are only the first part of the financing decision. The second figure shows that borrowing costs initially fell, then rose sharply after 2021. The monthly average mortgage rate increased from 4.5% in January 2019 to 6.7% in December 2024. For a given loan balance, a higher rate increases the payment needed to repay the mortgage over the same period. Lower rates early in the pandemic temporarily cushioned the effect of rising prices; later, buyers faced both a larger purchase price and more expensive credit.\n\n\n\nFigure 2. Monthly average 30-year fixed mortgage rates.\n\n\nThe third figure brings these two forces together. Consider an illustrative home worth $300,000 in January 2019. Let its value subsequently move with the national price index, assume a 20% down payment, and calculate principal and interest on a new 30-year fixed loan in each month. The estimated payment rises from $1,211 to $2,456, an increase of about 102.8%. This is a comparison of hypothetical new loans, not the changing payment on one existing fixed-rate mortgage.\n\n\n\nFigure 3. Estimated payments with observed rates and with the January 2019 rate held fixed.\n\n\nFor comparison, the dashed line holds the interest rate at its January 2019 value while allowing home prices to change. Under that scenario, the December 2024 payment would be approximately $1,917. The gap between the lines isolates the mechanical effect of changing the rate for the same month’s loan balance. It does not predict what house prices would actually have been if rates had stayed low: prices and financing conditions can influence one another.\nThe dollar payments also need context. Adjusting for consumer-price inflation, the increase in the estimated payment is about 61.3%, still substantial. But this calculation excludes property taxes, insurance, maintenance, closing costs, and changes in household income. The $300,000 starting value is an illustrative assumption, not an estimated national median. Holding the down-payment percentage constant also requires more cash as prices rise. Consequently, the figures measure financing pressure rather than a complete payment-to-income affordability ratio.\nThe takeaway is that slower price growth alone does not guarantee relief for new buyers. The price of the home and the price of borrowing jointly determine the monthly commitment. Evaluating a purchase therefore requires looking beyond the listing price to financing terms, upfront cash, and income. These figures show how that distinction became especially consequential between 2019 and 2024.\nData: Case-Shiller home price index, Freddie Mac mortgage rate, and BLS Consumer Price Index, retrieved from FRED on October 6, 2026. Code, data, and replication instructions: GitHub repository."
+    "text": "How Income Measurement Changes the Father–Son Earnings Link\n\n\n\n\n\n\n\n\n\n\n\nOct 22, 2026\n\n\nYiran Zhang\n\n\n\n\n\n\n\n\n\n\n\n\nDoes Lower Rent Mean Affordable Housing?\n\n\nMapping rent and renter burdens in Philadelphia\n\n\n\n\n\n\n\n\nOct 19, 2026\n\n\nYiran Zhang\n\n\n\n\n\n\n\n\n\n\n\n\nWhy the House Price Is Only Half the Story\n\n\n\n\n\n\n\n\n\n\n\nOct 6, 2026\n\n\nYiran Zhang\n\n\n\n\n\n\n\n\n\n\n\n\nParenthood and the Gender Earnings Gap\n\n\n\n\n\n\n\n\n\n\n\nSep 28, 2026\n\n\nYiran Zhang\n\n\n\n\n\n\n\n\n\n\n\n\nGrowth, Job Openings, and Entry Barriers: Exploring Bright Outlook Careers\n\n\n\n\n\n\n\n\n\n\n\nSep 21, 2026\n\n\nyiran zhang\n\n\n\n\n\n\n\n\n\n\n\n\nOne Economy, Three Measures: Why Can GDP Be Measured Three Ways?\n\n\n\n\n\n\n\n\n\n\n\nSep 14, 2026\n\n\n\n\n\nNo matching items"
+  },
+  {
+    "objectID": "about.html",
+    "href": "about.html",
+    "title": "About",
+    "section": "",
+    "text": "About this site\n\n1 + 1\n\n[1] 2"
+  },
+  {
+    "objectID": "bio.html",
+    "href": "bio.html",
+    "title": "About Me",
+    "section": "",
+    "text": "Write a short biography here.\nInclude:"
+  },
+  {
+    "objectID": "bio.html#education",
+    "href": "bio.html#education",
+    "title": "About Me",
+    "section": "Education",
+    "text": "Education\nMaster of Applied Economics and Data Science, University of Pennsylvania (expaceted 2027) Batelor of Science, University Name 2026"
+  },
+  {
+    "objectID": "bio.html#interests",
+    "href": "bio.html#interests",
+    "title": "About Me",
+    "section": "Interests",
+    "text": "Interests\n\nEconometrics\nMachine Learning\nData Analysis"
+  },
+  {
+    "objectID": "bio.html#contact",
+    "href": "bio.html#contact",
+    "title": "About Me",
+    "section": "Contact",
+    "text": "Contact"
+  },
+  {
+    "objectID": "bio.html#studentemail.edu",
+    "href": "bio.html#studentemail.edu",
+    "title": "About Me",
+    "section": "student@email.edu",
+    "text": "student@email.edu"
+  },
+  {
+    "objectID": "blog/posts/post1/index.html",
+    "href": "blog/posts/post1/index.html",
+    "title": "One Economy, Three Measures: Why Can GDP Be Measured Three Ways?",
+    "section": "",
+    "text": "Gross Domestic Product (GDP) is one of the most familiar measures in economics. But there is something about GDP accounting that initially seems strange: economists can calculate GDP in three different ways—the production approach, the expenditure approach, and the income approach—and, in principle, obtain exactly the same answer.\nAt first, these approaches seem to measure completely different things. The production approach asks how much value an economy produces. The expenditure approach asks how much is spent on final goods and services. The income approach asks how much income is generated in the production process. Why should these three numbers be equal?"
+  },
+  {
+    "objectID": "blog/posts/post1/index.html#three-different-questions-one-answer",
+    "href": "blog/posts/post1/index.html#three-different-questions-one-answer",
+    "title": "One Economy, Three Measures: Why Can GDP Be Measured Three Ways?",
+    "section": "",
+    "text": "Gross Domestic Product (GDP) is one of the most familiar measures in economics. But there is something about GDP accounting that initially seems strange: economists can calculate GDP in three different ways—the production approach, the expenditure approach, and the income approach—and, in principle, obtain exactly the same answer.\nAt first, these approaches seem to measure completely different things. The production approach asks how much value an economy produces. The expenditure approach asks how much is spent on final goods and services. The income approach asks how much income is generated in the production process. Why should these three numbers be equal?"
+  },
+  {
+    "objectID": "blog/posts/post1/index.html#following-one-transaction",
+    "href": "blog/posts/post1/index.html#following-one-transaction",
+    "title": "One Economy, Three Measures: Why Can GDP Be Measured Three Ways?",
+    "section": "Following One Transaction",
+    "text": "Following One Transaction\nConsider a simple example. Suppose I buy a loaf of bread from a bakery for $5. From the expenditure side, this is straightforward: I have spent $5 on a final consumption good, so it contributes $5 to consumption.\nFrom the production side, we measure the value added in producing the bread. If the bakery uses $2 of flour produced by another firm and sells the bread for $5, the bakery adds $3 of value. The flour producer contributes the other $2. Across the whole production chain, total value added is therefore still $5. This is why GDP counts value added rather than simply adding up every transaction: otherwise intermediate goods such as flour would be counted twice.\nFinally, the value created through production generates income. Across the entire production chain, the $5 of value added ultimately appears as income, such as wages and profits. Thus, the same economic activity appears as $5 of production, $5 of expenditure, and $5 of income.\n\\[\n\\text{Production} = \\text{Expenditure} = \\text{Income}\n\\]"
+  },
+  {
+    "objectID": "blog/posts/post1/index.html#what-if-nobody-buys-the-bread",
+    "href": "blog/posts/post1/index.html#what-if-nobody-buys-the-bread",
+    "title": "One Economy, Three Measures: Why Can GDP Be Measured Three Ways?",
+    "section": "What If Nobody Buys the Bread?",
+    "text": "What If Nobody Buys the Bread?\nNow consider a less intuitive case. Suppose the $5 loaf is produced, but nobody buys it before the end of the accounting period. Has GDP fallen by $5?\nNo. The production approach has not changed: the bread was still produced during the period. What changes is its classification under the expenditure approach. Instead of appearing as $5 of consumption, the unsold bread is recorded as $5 of inventory investment. Therefore, total GDP is unchanged.\n\\[\nC \\downarrow \\$5,\\qquad I_{\\text{inventory}} \\uparrow \\$5\n\\]\nThe income approach also remains consistent. Income generated by production does not require the final product to have already been sold for cash. The unsold bread becomes an inventory asset of the firm. In national accounting, what matters is that production occurred during the period.\nThis reveals an important distinction: GDP measures current production, not simply current sales or cash receipts."
+  },
+  {
+    "objectID": "blog/posts/post1/index.html#the-takeaway",
+    "href": "blog/posts/post1/index.html#the-takeaway",
+    "title": "One Economy, Three Measures: Why Can GDP Be Measured Three Ways?",
+    "section": "The Takeaway",
+    "text": "The Takeaway\nThe three approaches to GDP are not three unrelated ways of estimating the economy. They are three perspectives on the same economic activity. Production creates value, expenditure purchases final output, and the production process generates income.\nOnce we follow a transaction through the economy, the identity becomes much less mysterious:\n\\[\n\\boxed{\\text{Production} = \\text{Expenditure} = \\text{Income}}\n\\]\nThe equality is not a coincidence. It is built into the way economic transactions connect buyers, producers, and income earners."
+  },
+  {
+    "objectID": "blog/posts/post3/index.html",
+    "href": "blog/posts/post3/index.html",
+    "title": "Parenthood and the Gender Earnings Gap",
+    "section": "",
+    "text": "The gender earnings gap is a persistent feature of the U.S. labor market, but the size of the gap may differ across workers with different family circumstances. In this post, I use data from the 2025 Annual Social and Economic Supplement (ASEC) of the Current Population Survey to examine whether the gender earnings gap differs between workers with and without children in the household.\nRather than estimating the causal effect of parenthood, this analysis provides a descriptive comparison of earnings and work patterns across men and women with and without children in the household."
+  },
+  {
+    "objectID": "blog/posts/post3/index.html#introduction",
+    "href": "blog/posts/post3/index.html#introduction",
+    "title": "Parenthood and the Gender Earnings Gap",
+    "section": "",
+    "text": "The gender earnings gap is a persistent feature of the U.S. labor market, but the size of the gap may differ across workers with different family circumstances. In this post, I use data from the 2025 Annual Social and Economic Supplement (ASEC) of the Current Population Survey to examine whether the gender earnings gap differs between workers with and without children in the household.\nRather than estimating the causal effect of parenthood, this analysis provides a descriptive comparison of earnings and work patterns across men and women with and without children in the household."
+  },
+  {
+    "objectID": "blog/posts/post3/index.html#data-and-methods",
+    "href": "blog/posts/post3/index.html#data-and-methods",
+    "title": "Parenthood and the Gender Earnings Gap",
+    "section": "Data and Methods",
+    "text": "Data and Methods\nThe data come from the 2025 CPS ASEC, accessed through IPUMS CPS. I restrict the sample to adults ages 25 to 54 with positive wage and salary income who usually worked at least 35 hours per week and worked at least 50 weeks during the previous year. After these restrictions, the analysis sample contains 34,996 individuals.\nParenthood is defined using the number of one’s own children living in the household (NCHILD). Individuals with at least one own child in the household are classified as parents, while those with no own children in the household are classified as having no children.\nI use the CPS ASEC person weight (ASECWT) to calculate weighted mean wage and salary income. I also compare usual weekly hours and weeks worked across the four groups to examine whether differences in work time accompany the observed earnings differences."
+  },
+  {
+    "objectID": "blog/posts/post3/index.html#results",
+    "href": "blog/posts/post3/index.html#results",
+    "title": "Parenthood and the Gender Earnings Gap",
+    "section": "Results",
+    "text": "Results\nThe earnings comparison shows a clear difference by parenthood status. Among workers without children in the household, weighted mean annual wage and salary income is $85,376 for men and $76,826 for women, corresponding to a gender earnings gap of about 10%. Among parents, mean income is $112,339 for men and $79,745 for women, producing a much larger gap of about 29%.\nThe difference is driven primarily by the substantially higher average earnings of fathers. Compared with men without children, fathers earn about $27,000 more on average, while the difference between mothers and women without children is much smaller, at about $3,000.\n\n\n\n\n\n\n\n\n\nWeekly work hours differ only modestly across the four groups. Men without children work an average of 42.8 hours per week, compared with 41.8 hours for women without children. Among parents, men work about 43.8 hours per week, while women work about 41.8 hours. All four groups worked approximately 52 weeks during the previous year. These patterns suggest that differences in weeks worked are unlikely to explain the substantially larger earnings gap among parents, although differences in weekly hours may contribute somewhat.\n\n\n\n\n\n\n\n\n\nExpressed directly as a percentage gap, the contrast is substantial: women without children earn about 10% less than men without children on average, while women who are parents earn about 29% less than men who are parents. The much larger gap among parents is therefore driven mainly by the sharp increase in men’s average earnings associated with parenthood in this descriptive comparison."
+  },
+  {
+    "objectID": "blog/posts/post3/index.html#conclusion",
+    "href": "blog/posts/post3/index.html#conclusion",
+    "title": "Parenthood and the Gender Earnings Gap",
+    "section": "Conclusion",
+    "text": "Conclusion\nUsing the 2025 CPS ASEC, this analysis finds that the gender earnings gap among full-year workers differs substantially by parenthood status. The gap is about 10% among workers without children in the household, compared with about 29% among parents. This larger gap mainly reflects substantially higher average earnings among fathers, while mothers’ average earnings are only modestly higher than those of women without children.\nThese results are descriptive rather than causal. Parenthood may be associated with other differences in occupation, industry, education, work experience, or other characteristics that are not accounted for here. Nevertheless, the comparison illustrates how the gender earnings gap can vary considerably across workers with different family circumstances."
+  },
+  {
+    "objectID": "blog/posts/post5/index.html",
+    "href": "blog/posts/post5/index.html",
+    "title": "Does Lower Rent Mean Affordable Housing?",
+    "section": "",
+    "text": "Searching for an apartment in Philadelphia, it is natural to start with the monthly rent. A cheaper neighborhood seems like the obvious place to find affordable housing. But affordable for whom? A lower rent can still absorb a large share of a household’s income. Mapping both rent levels and renters’ financial burdens reveals why a city’s cheapest areas are not necessarily its least strained.\n\n\n\nTwo maps compare median monthly gross rent and the share of rent-burdened households across Philadelphia census tracts.\n\n\nThe maps tell different stories about the same city. Higher rents cluster around Center City, with additional expensive pockets elsewhere. Yet relatively light burdens appear in parts of that central area, while many tracts farther north and west show heavier burdens despite lower rents. The contrast matters because a rent map alone could direct attention away from places where residents struggle to pay. The same tract boundaries appear in both panels; darker blue means higher rent, whereas darker orange means a greater share of burdened renters.\nI compare Philadelphia census tracts, small statistical areas that do not necessarily follow neighborhood boundaries, using the U.S. Census Bureau’s 2020–2024 American Community Survey. These are five-year estimates, not a snapshot of 2024 or today’s advertised rents. Monthly gross rent includes rent and utilities. I define a rent-burdened household as one spending at least 30% of its income on those costs: for example, $900 out of $3,000 a month. The burden rate is the share of renter households meeting that threshold among those whose rent-to-income ratio can be calculated. It is not a ratio of neighborhood medians.\nTo make the comparison concrete, I retain 376 tracts with available rent and burden measures and at least 100 estimated renter households with a calculable ratio. This removes 32 tracts; gray areas are excluded, not places with zero rent or no hardship. Splitting the retained tracts at their median rent of approximately $1,370, the lower-rent half has a burden rate of 55.1%, compared with 49.2% in the higher-rent half. These rates pool household counts within each group, so a tract with more renters contributes more than a small tract.\nBut crossing the 30% threshold is only part of the story. A household spending 31% of its income on housing faces a different budget constraint from one spending 60%. To distinguish those experiences, I divide the same tracts into four groups by median rent and separate renters into three burden categories. Each group contains approximately the same number of tracts; the percentages still pool household counts.\n\n\n\nHousehold rent burdens by tract rent quartile, separating income shares below 30%, 30% to under 50%, and at least 50%.\n\n\nIn the lowest-rent quarter, 33.4% of renters with a computed ratio spend at least half their income on rent and utilities, compared with 20.8% in the highest-rent quarter. For these households, half or less of their income remains for food, transportation, health care, and everything else. Yet the pattern is not a smooth decline: the third rent group has a slightly higher severe-burden estimate than the lowest-rent group. Lower rent does not guarantee relief, and higher rent does not uniformly imply less pressure.\nTwo tracts illustrate the mismatch. Tract 36, southwest of City Hall, has a median gross rent of $553, yet 58.5% of renters with a computed ratio are burdened. Tract 8.06, near Center City, has a median rent of $2,454 but a burden rate of 25.3%. These examples illustrate the pattern rather than establish a ranking: they are survey estimates, and households and housing units differ across locations.\n\n\n\nA scatterplot shows considerable variation in rent burden at similar rent levels, highlighting tracts 36 and 8.06.\n\n\nThe scatterplot reinforces that caution. Each dot represents a tract, and neighborhoods with similar median rents can have very different burdens. Income differences and the sorting of households across locations could help explain the pattern, but these maps cannot identify their individual contributions. They do not show that higher rents reduce hardship, or that moving a particular household would improve its situation. Housing size, subsidies, student populations, and household composition may also matter.\nThere are limits to the comparison. Excluding ratios that cannot be computed means the rates do not cover all renter households; households reporting no or negative income and units without cash rent can fall outside that denominator. Small-area estimates also have sampling uncertainty. The count cutoff is not a guarantee of statistical precision. I therefore emphasize broad patterns rather than small differences between neighboring tracts or rent groups.\nPhiladelphia’s affordability problem is consequently easy to misread from prices alone. For residents comparing apartments, the relevant calculation is rent plus utilities relative to their own income. For identifying areas that may need support, burden rates add information that a low-rent label misses. Lower rents matter, but the map shows why they cannot, by themselves, tell us whether local renters can comfortably pay.\nData: U.S. Census Bureau, ACS 2020–2024, tables B25064 and B25070, retrieved through Census Reporter; tract geometry from its TIGER 2024 endpoint. Analysis code, cached source data, and replication instructions accompany this article."
   },
   {
     "objectID": "index.html",
