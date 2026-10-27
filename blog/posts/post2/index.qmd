@@ -3,108 +3,76 @@ title: "Growth, Job Openings, and Entry Barriers: Exploring Bright Outlook Caree
 author: "yiran zhang"
 date: "2026-09-21"
 format: html
-editor: visual
+image: results/outlook_by_zone.png
 ---
 
-## Introduction
+```{r}
+#| include: false
+source("code/analyze.R", local = TRUE)
+result <- analyze_blog2()
+n_all <- nrow(result$career)
+n_matched <- nrow(result$analysis)
+n_missing <- n_all - n_matched
+n_both <- nrow(result$both)
+share <- function(zone) {
+  x <- result$both_summary
+  sprintf("%.1f%%", sum(x$share_percent[x$`Job Zone` %in% zone]))
+}
+wage <- function(code) {
+  x <- result$examples
+  paste0("\\$", format(x$median_annual_wage[x$Code == code], big.mark = ",", trim = TRUE))
+}
+```
 
-Choosing a career involves more than simply looking for occupations with high projected growth. A rapidly growing occupation may still offer relatively few openings, while an occupation with many openings may require very different levels of education, experience, and training. In this post, I use data from O\*NET OnLine to explore how promising career opportunities are distributed across different levels of job preparation. Specifically, I ask: \*\*How do rapid-growth and high-opening occupations differ across O\*NET Job Zones, and what does this suggest about the relationship between career opportunities and entry barriers?\*\*
+A fast-growing occupation is not automatically a good career choice. It may offer few openings, require years of preparation, or pay less than a job seeker needs. A more useful question is: **which occupations combine favorable prospects with preparation requirements and pay that fit the person considering them?** I use O*NET OnLine to turn broad career-outlook labels into a practical starting point for that comparison.
 
-## Data and Method
+## What does a Job Zone actually mean?
 
-I collected data from O\*NET OnLine using the \`rvest\` package in R. I scraped two publicly accessible O\*NET pages: the Job Zone page, which classifies occupations by the level of preparation required, and the Bright Outlook page, which identifies occupations expected to grow rapidly, have numerous job openings, or both. I then joined the two datasets using O\*NET occupation codes.
+O*NET's [Job Zones](https://www.onetonline.org/help/online/zones) combine **education, related experience, and training**. They are not degree categories or guarantees of entry. A bachelor's degree often corresponds to Zone 4, for example, but it does not automatically qualify someone for every occupation in that zone.
 
-O\*NET Job Zones provide an ordered measure of preparation requirements: higher Job Zones generally indicate greater requirements for education, related experience, and on-the-job training. I therefore use Job Zone as a proxy for the entry barrier of an occupation.
+| Job Zone in this dataset | Typical preparation—not a universal credential requirement |
+| --- | --- |
+| 1–2 | High school/GED is common; some roles require less. Training can range from days to about a year. |
+| 3 | Vocational training, an associate degree, or substantial related experience; apprenticeships may matter. |
+| 4 | A four-year bachelor's degree is common, often alongside relevant experience or further training. |
+| 5 | Graduate or professional education is common, together with extensive specialized preparation. |
+
+A medical assistant in Zone 3 and a software developer in Zone 4 therefore represent different preparation routes—not simply “less college” and “more college.” Job Zone is a broad screening tool; occupation-specific requirements still need checking.
+
+## Where do growth and openings overlap?
+
+I originally scraped the public Job Zone and Bright Outlook tables with R's `rvest`, joining on occupation codes. The saved snapshot contains `r n_all` Bright Outlook titles; `r n_missing` lack a matched Job Zone, leaving `r n_matched` for the figure. Saved inputs make this comparison reproducible without repeatedly requesting the website. The supplied refresh function requests only public pages, sequentially with a pause, and does not bypass access restrictions.
+
+The figure distinguishes a rapid-growth flag, a numerous-openings flag, and their overlap. Growth concerns expansion; openings can also arise when workers leave or change occupations. Other O*NET designations can coexist with these flags.
+
+![Bright Outlook occupation-title counts by preparation level. These are occupation categories, not job-opening counts.](results/outlook_by_zone.png){#fig-outlook width=100%}
+
+Of the `r n_both` matched titles carrying both flags, `r share("4")` are in Zone 4, while `r share("1-2")` are in Zones 1–2, `r share("3")` in Zone 3, and `r share("5")` in Zone 5. Favorable outlooks therefore span several preparation routes. These shares describe the composition of the selected titles—not the probability that an occupation within a zone has a favorable outlook, nor the share of available jobs.
+
+## From categories to a usable shortlist
+
+The following examples all carry both flags in the saved analysis snapshot. Their linked O*NET profiles supply national median annual wages for 2025, retrieved on October 26, 2026. The list snapshot and the wage-profile retrieval are separate vintages.
 
 ```{r}
 #| echo: false
-#| message: false
-#| warning: false
-library(rvest)
-library(dplyr)
-library(stringr)
-library(ggplot2)
-
-url <- "https://www.onetonline.org/find/zone?z=0"
-
-page <- read_html(url)
-
-tables <- page |>
-  html_elements("table") |>
-  html_table(fill = TRUE)
-
-occupations <- tables[[1]]
-
-bright_url <- "https://www.onetonline.org/find/bright?b=0"
-
-bright_page <- read_html(bright_url)
-
-bright_tables <- bright_page |>
-  html_elements("table") |>
-  html_table(fill = TRUE)
-
-bright <- bright_tables[[1]]
-
-career_data <- bright |>
-  select(Code, Occupation, Categories) |>
-  left_join(
-    occupations |> select(Code, `Job Zone`),
-    by = "Code"
-  )
-
-analysis_data <- career_data |>
-  filter(!is.na(`Job Zone`))|>
-  mutate(
-    rapid_growth = str_detect(Categories, "Rapid Growth"),
-    many_openings = str_detect(Categories, "Numerous Job Openings")
-  )
-  
-analysis_data <- analysis_data |>
-  mutate(
-    outlook_type = case_when(
-      rapid_growth & many_openings ~ "Rapid Growth + Numerous Openings",
-      rapid_growth ~ "Rapid Growth",
-      many_openings ~ "Numerous Openings"
-    )
-  )
-
-
-ggplot(
-  analysis_data,
-  aes(x = `Job Zone`, fill = outlook_type)
-) +
-  geom_bar(position = "dodge") +
-  labs(
-    title = "Bright Outlook Careers Across Job Zones",
-    x = "Job Zone",
-    y = "Number of Occupations",
-    fill = "Outlook Type"
-  ) +
-  scale_fill_manual(
-    values = c(
-      "Numerous Openings" = "#D8A48F",
-      "Rapid Growth" = "#7AA6A1",
-      "Rapid Growth + Numerous Openings" = "#8E9AAF"
-    )
-  ) +
-  theme_minimal()
-
-both_summary <- analysis_data |>
-  filter(rapid_growth & many_openings) |>
-  count(`Job Zone`) |>
-  mutate(percent = round(n / sum(n) * 100, 1))
-
-
+x <- result$examples
+tab <- data.frame(
+  Occupation = paste0("[", x$Occupation, "](", x$source_url, ")"),
+  `Job Zone` = x$`Job Zone`,
+  `Median annual wage (2025)` = paste0("$", format(x$median_annual_wage, big.mark = ",", trim = TRUE)),
+  check.names = FALSE
+)
+knitr::kable(tab, escape = FALSE, align = c("l", "c", "r"))
 ```
 
-## Results
+Medical assistants offer a Zone 3 route with a median of `r wage("31-9092.00")`; someone considering it should check local training costs, duties, and certification expectations. For a reader with relevant degree-level preparation, accountants and auditors (`r wage("13-2011.00")`) and software developers (`r wage("15-1252.00")`) illustrate why the same Job Zone does not imply the same pay or skill requirements.
 
-The distribution of Bright Outlook occupations differs noticeably across Job Zones. Rapid-growth occupations appear in every preparation level, but they are especially common in Job Zones 3 and 4. Job Zone 4 contains the largest number of rapid-growth occupations, suggesting that many expanding careers require considerable preparation rather than either minimal preparation or the highest level of specialization.
+A practical approach is to screen first for a feasible preparation route, then compare named occupations against a salary target. Before paying for training, inspect local vacancies and employer requirements, verify any licensing rules, and compare training time and cost with likely entry pay. National medians describe existing workers across experience levels; they are not starting-salary promises.
 
-A more informative pattern emerges when I focus on occupations that satisfy both Bright Outlook criteria: rapid growth and numerous job openings. Among these 32 occupations, 46.9% are in Job Zone 4, the largest share, while 34.4% are in Job Zones 1–2. Job Zone 3 accounts for 12.5%, and only 6.2% are in Job Zone 5. This suggests that strong employment opportunities are not concentrated at a single level of preparation.
+Several limitations prevent treating this as a ranking of the “best” careers. The figure weights each occupation title equally, some titles share broader labor-market statistics, and unmatched titles are excluded. National projections do not establish local demand, hiring competition, work authorization eligibility, or working conditions. The four wage examples are illustrative, not representative of their zones, and do not estimate the return to education.
 
-## Conclusion
+The takeaway is to use outlook flags to find possibilities, Job Zones to assess preparation, and occupation-specific pay and local requirements to decide what deserves further investigation. A favorable label begins the decision; it does not complete it.
 
-This analysis shows that strong career outlooks exist across a wide range of preparation levels. Although Job Zone 4 contains the largest share of occupations combining rapid growth with numerous openings, more than one-third of these occupations are in Job Zones 1–2. This suggests that workers do not necessarily need the highest level of education, experience, and training to enter occupations with favorable employment prospects.
+## Sources
 
-For job seekers, the practical takeaway is to consider both expected growth and the number of openings rather than focusing on either measure alone. Job Zone can then be used as an additional filter for the amount of preparation required. This provides a simple way to identify career opportunities that better match an individual's current qualifications and willingness to invest in additional training.
+[O*NET Job Zone table](https://www.onetonline.org/find/zone?z=0), [Bright Outlook table](https://www.onetonline.org/find/bright?b=0), and [Job Zone definitions](https://www.onetonline.org/help/online/zones). Individual wage-profile links appear in the table; their underlying wage source is the Bureau of Labor Statistics. See `README.md` for snapshot provenance, data locations, and replication.
