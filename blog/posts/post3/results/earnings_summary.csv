@@ -1,0 +1,9 @@
+sample,parenthood,gender,mean_income,n
+All wage recipients,No co-resident children,Men,76151.27485317706,10184
+"Full-time, full-year",No co-resident children,Men,85376.41579602344,8074
+All wage recipients,No co-resident children,Women,68057.8088066513,7852
+"Full-time, full-year",No co-resident children,Women,76826.22877471181,6111
+All wage recipients,Co-resident children,Men,106339.66985268677,12663
+"Full-time, full-year",Co-resident children,Men,112338.90818337037,11235
+All wage recipients,Co-resident children,Women,67389.2682306432,13468
+"Full-time, full-year",Co-resident children,Women,79744.8579921634,9576

@@ -1,3 +1,8 @@
-cps_*.dat.gz
-cps_*.xml
+# Keep licensed IPUMS microdata local; publish aggregate results instead.
+data/cps_*.dat
+data/cps_*.dat.gz
+data/cps_*.xml
 .RData
+.Rhistory
+index.html
+index_files/
