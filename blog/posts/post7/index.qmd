@@ -1,0 +1,49 @@
+---
+title: "Does Economic Growth Always Mean Longer Lives?"
+author: "Yiran Zhang"
+date: "2026-10-26"
+date-format: long
+categories: [Python, Plotly, Economic Development]
+format:
+  html:
+    toc: true
+---
+
+If a country becomes richer, should we expect its people to live longer? Higher income can support better nutrition, sanitation, and medical care. Yet countries with similar incomes can have very different health outcomes. An interactive visualization helps distinguish the broad income–health relationship from the individual histories hidden inside it.
+
+## Data and design
+
+I use the historical Gapminder sample distributed with Plotly Express: 1,704 observations covering 142 countries at five-year intervals from 1952 to 2007. Each observation reports GDP per capita, life expectancy at birth, and population. These are historical estimates, not current conditions. The bundled CSV preserves the exact data used here, including Plotly's country identifiers.
+
+The horizontal axis shows inflation-adjusted GDP per capita in the dataset's US-dollar units. It uses a logarithmic scale, so equal distances represent equal income ratios rather than equal dollar increases. This keeps poorer countries visible beside richer countries. The vertical axis measures life expectancy in years. Bubble area represents population, while color identifies continent. Population affects the display only: I do not estimate a population-weighted regression or calculate a global average.
+
+## Explore the world, one year at a time
+
+Move the year slider or press Play. Hover over a bubble to identify its country and read its income, population, and life expectancy. Click a continent in the legend to hide or show it; double-click to isolate it. The axes remain fixed across years, preventing automatic rescaling from exaggerating changes. Pause before zooming or comparing individual observations.
+
+{{< include results/_world_chart.md >}}
+
+Start in 1952 and move to 2007. Much of the cloud shifts upward and rightward: higher incomes and longer lives frequently occur together. Within a given year, richer countries also tend to appear higher on the chart. However, the pattern is not an exact rule. Hovering reveals countries that occupy similar horizontal positions but substantially different vertical positions.
+
+For a concrete comparison, select 2007 and examine the Americas. Costa Rica has GDP per capita of approximately $9,645 and life expectancy of 78.8 years. The United States has income of approximately $42,952 and life expectancy of 78.2 years. Thus, the United States has about 4.5 times the income but does not have higher life expectancy in this observation. This does not identify which policies explain the difference. It shows why GDP alone is an incomplete description of health outcomes.
+
+## Follow countries instead of the global cloud
+
+The second chart connects successive observations for four selected countries. Use its dropdown to isolate one trajectory, or compare all four. Hover to inspect exact values. These countries illustrate contrasting paths; they are not a representative subsample chosen for statistical estimation.
+
+{{< include results/_country_chart.md >}}
+
+China moves from approximately $400 and 44.0 years in 1952 to $4,959 and 73.0 years in 2007. Its path illustrates a large improvement in both dimensions. Costa Rica and the United States end at similar life expectancies despite substantially different income levels.
+
+South Africa provides a different lesson. Between 1992 and 2007, GDP per capita rises from approximately $7,225 to $9,270, while life expectancy falls from 61.9 to 49.3 years. The downward-right segment makes clear that rising income did not guarantee improving health during this interval. The dataset alone cannot establish the causes of this decline; explaining it would require additional health and historical evidence.
+
+## What the interaction adds
+
+A single 2007 scatterplot would hide South Africa's reversal and China's earlier starting point. The slider separates comparisons across countries from changes over time; hovering identifies exceptions; the trajectory dropdown makes individual histories readable without overlapping 142 paths. These controls change which economic comparisons the reader can investigate.
+
+The evidence remains descriptive. Income and health can influence each other, while institutions, disease, public services, and conflict may affect both. Five-year spacing also hides events between observations, and national averages conceal inequality. The takeaway is that economic growth and longer lives often move together, but evaluating development requires examining health outcomes directly—and following countries through time rather than judging them from income alone.
+
+
+## Sources and replication
+
+Data: [Gapminder historical excerpt](https://jennybc.github.io/gapminder/reference/gapminder.html), distributed with Plotly Express. Methods: [Plotly animations](https://plotly.com/python/animations/). See README.md for replication instructions.
