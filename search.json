@@ -14,6 +14,216 @@
     "text": "Resume PDF"
   },
   {
+    "objectID": "blog/posts/post8/index.html",
+    "href": "blog/posts/post8/index.html",
+    "title": "Is the Average Wait Longer Than 10 Minutes?",
+    "section": "",
+    "text": "A coffee-shop setting for exploring waiting times. AI-generated illustrative image.\nA coffee shop claims that orders take ten minutes on average. A few long waits do not automatically disprove that claim: samples fluctuate. How can we distinguish a real difference from sampling noise? For a customer planning a short break, an extra two minutes matters. Simulation lets us check whether a sample can reveal that difference, because we know the truth behind the data.\nI generate independent waiting times from a Gamma distribution with shape 4 and scale 3 minutes. Its population mean is shape times scale: 12 minutes. These are synthetic data, not observations from a real shop.\nWhy Gamma? Waiting times are positive, and a right-skewed distribution captures a useful pattern: most customers receive their orders relatively quickly, while a few wait much longer. Gamma also has a simple, known mean, making it convenient for checking inference. This is a teaching model, not evidence that actual coffee-shop waits follow this distribution.\nWhat can one sample tell us?\nThe main experiment draws 200 customers. Their average wait is 11.79 minutes. To estimate its uncertainty, I draw 5,000 bootstrap samples from those same 200 observations, with replacement. Each resample contains 200 records; some original records appear several times and others disappear. I calculate a mean for every resample.\nThe first plot displays those bootstrap means. Their 2.5th and 97.5th percentiles give a 95% percentile bootstrap interval of [11.01, 12.60] minutes. The sample stands in for the population: resampling estimates how much its mean could vary. It adds no new independent information and does not assume a Gamma distribution.\nFigure 1. Resampling one sample estimates uncertainty about its mean.\nBut does this interval-building method usually capture the truth? To check its coverage, I repeat the entire experiment 2,000 times. Each repetition draws a fresh sample from the population, performs 2,000 bootstrap resamples, and constructs a new interval. The resulting coverage is 94.8%: approximately 95% of intervals contain the fixed true mean of 12.\nThe second plot displays the first 100 intervals, including misses. The parameter stays fixed while intervals change. The confidence level describes the long-run performance of the procedure, not a 95% probability assigned to the fixed parameter after observing one interval. Percentile bootstrap coverage is approximate, especially with small, skewed samples; neither nominal confidence nor more bootstrap draws guarantees correct coverage.\nFigure 2. Repeating the whole experiment reveals coverage; red intervals miss the true mean.\nWhat if the shop's claim were true?\nFor a separate, one-sided test, I set H0: mean = 10 against H1: mean &gt; 10. The original sample comes from Gamma(4, 3), with mean twelve; ten is the shop's claim, not a consequence of skewness. To simulate a world consistent with the shop's claim, I keep shape 4 and set scale to 10/4 = 2.5: Gamma(4, 2.5) therefore has mean ten. Holding shape fixed preserves skewness and relative variability, but the standard deviation falls from six to five minutes. The test therefore assumes a specific Gamma family with known shape. Bootstrap resampling itself makes neither Gamma assumption.\nI generate 50,000 samples of 200 customers under that null model and use their means as test statistics. The upper 5% forms the rejection region, starting at 10.59 minutes. The observed mean exceeds this threshold. The p-value estimates the probability, assuming H0 and this model, of a mean at least as large as observed. There are 0 exceedances; the finite-simulation correction gives (0 + 1)/(50,000 + 1) = 0.000020. Zero simulated exceedances would not mean zero true probability. At the 5% level, I reject H0: this sample provides evidence of an average wait above ten minutes under the specified model.\nFigure 3. The observed mean lies beyond the upper 5% rejection threshold.\nThis one-sided 5% test and the two-sided 95% bootstrap interval are distinct procedures, not exact inverses.\nIn this simulated shop, the sample supports an average wait above ten minutes. The bootstrap interval shows its uncertainty, and repeated experiments show why a 95% method can still miss the truth. The conclusion concerns average waiting time, not every customer's wait. Real queues may have dependent observations and changing conditions, so ordinary independent resampling would need reconsideration.\nAll data are simulated. Code, generated data and replication instructions are provided in the accompanying repository.\nExplore the simulations"
+  },
+  {
+    "objectID": "blog/posts/post6/index.html",
+    "href": "blog/posts/post6/index.html",
+    "title": "How Income Measurement Changes the Father–Son Earnings Link",
+    "section": "",
+    "text": "How much does a father’s income tell us about his son’s income? Before estimating that relationship, we must decide when to measure earnings. A salary early in a career can give a different picture from earnings in middle age. I use PSID data to ask how the estimated father–son link changes with the son’s age and with the number of income observations used."
+  },
+  {
+    "objectID": "blog/posts/post6/index.html#matching-fathers-and-sons",
+    "href": "blog/posts/post6/index.html#matching-fathers-and-sons",
+    "title": "How Income Measurement Changes the Father–Son Earnings Link",
+    "section": "Matching fathers and sons",
+    "text": "Matching fathers and sons\nI focus on biological fathers and sons to keep this parent–child matching demonstration manageable. Mothers and daughters are outside the scope of this example, so the results describe father–son wage persistence rather than parent–child relationships more broadly.\nThe PSID follows individuals across survey waves. I rename ER30001 and ER30002 as family_id and person_no; together they identify a person. ER32016 and ER32017 become father_family_id and father_person_no, identifying the biological father. ER32000 records sex. A family ID alone is insufficient because relatives can share it. I combine each person’s two identifiers into a stable person_id.\nI load the extract into Python, create a SQLite connection with sqlite3.connect(), and write a people table and an income table using DataFrame.to_sql(). The following query constructs the father–son pairs:\nSELECT c.person_id AS child_id, p.person_id AS father_id\nFROM people AS c\nJOIN people AS p\n  ON c.father_family_id = p.family_id\n AND c.father_person_no = p.person_no\nWHERE c.sex = 1 AND p.sex = 1\n  AND c.father_family_id &gt; 0 AND c.father_person_no &gt; 0;\nSELECT chooses the output columns. JOIN connects two copies of the person table using both father identifiers. WHERE restricts the sample to men with recorded father identifiers. The full script checks that each son has at most one matched father."
+  },
+  {
+    "objectID": "blog/posts/post6/index.html#from-annual-wages-to-longer-run-earnings",
+    "href": "blog/posts/post6/index.html#from-annual-wages-to-longer-run-earnings",
+    "title": "How Income Measurement Changes the Father–Son Earnings Link",
+    "section": "From annual wages to longer-run earnings",
+    "text": "From annual wages to longer-run earnings\nI use annual wages and salaries reported in survey waves from 1970 through 2023, generally referring to the previous calendar year. Earlier wage variables are brackets rather than dollar amounts, so I omit them. I convert wages into 2022 dollars using annual CPI, exclude nonpositive and special-coded amounts, and retain current household heads/reference persons. This prevents assigning a household head’s wages to every family member. The Data Center links family wage variables to individual records using each wave’s family interview number. That changing household identifier serves a different purpose from the stable identifiers used to match fathers and sons.\nTo use other years, retain the person and father identifiers, then request each chosen wave’s wages, age, relationship, sequence number, and family interview number. For example, the 1970 wave uses V1191 for wages and ER30046 for age. data/variable_map.csv lists all wave-specific fields. Update the script’s years and corresponding income_vars together, check codebook definitions and special codes, and provide CPI for the income years. The father–son join stays the same.\nFathers’ wages are measured at ages 35–44. Sons’ wages are measured at 25–29 and again at 40–44. I approximate income-year age as interview age minus one. To calculate fathers’ averages in SQL:\nSELECT person_id, AVG(earnings) AS father_mean,\n       COUNT(*) AS father_n\nFROM income\nWHERE age BETWEEN 35 AND 44\nGROUP BY person_id\nHAVING COUNT(*) &gt;= 3;\nGROUP BY collects records for each person; AVG and COUNT aggregate them. HAVING keeps fathers with at least three valid observations. Analogous queries require at least two observations in each son’s age window. These are averages of observed positive-wage years, not necessarily consecutive years: PSID became biennial after 1997.\nThe resulting balanced sample contains 768 father–son pairs and 592 distinct fathers. Every specification uses these same pairs. For a single-year measure, I select the observation nearest age 40 for fathers, 27 for younger sons, and 42 for middle-aged sons; an earlier wave breaks ties."
+  },
+  {
+    "objectID": "blog/posts/post6/index.html#what-changes-when-earnings-are-measured-differently",
+    "href": "blog/posts/post6/index.html#what-changes-when-earnings-are-measured-differently",
+    "title": "How Income Measurement Changes the Father–Son Earnings Link",
+    "section": "What changes when earnings are measured differently?",
+    "text": "What changes when earnings are measured differently?\nI read the SQL results into pandas with pd.read_sql_query(), then regress log son wages on log father wages, an intercept, and a linear son birth-cohort control. The coefficient on log father wages is the intergenerational elasticity, or IGE. A coefficient of 0.4 means that 1% higher father wages are associated with approximately 0.4% higher son wages; this is an association, not a causal effect.\n\n\n\nFather–son wage elasticities using single-year and averaged income.\n\n\nAt ages 25–29, the IGE is 0.284 using single-year wages and 0.310 using averages. At ages 40–44, it is 0.310 and 0.514, respectively. Averaging changes the middle-age estimate substantially. The intervals in the figure allow for siblings sharing a father.\nTwo measurement issues matter. Temporary wage fluctuations make one year a noisy proxy for long-run earnings; averaging can reduce that noise. Life-cycle bias is different: younger workers with different eventual earnings may have different wage-growth paths. The higher averaged estimate at ages 40–44 illustrates sensitivity to measurement age, consistent with Haider and Solon (2006). Averaging early-career wages alone does not solve this problem.\nThese unweighted estimates describe a selected sample of men with positive wages, head/reference-person status, and long follow-up. They are not a national mobility estimate. Lifetime earnings are unobserved, so the middle-age estimate is not a known truth, and the comparisons do not isolate every source of bias. The practical lesson is to match people carefully, average repeated observations, and check measurement age before interpreting an IGE."
+  },
+  {
+    "objectID": "blog/posts/post6/index.html#sources-and-replication",
+    "href": "blog/posts/post6/index.html#sources-and-replication",
+    "title": "How Income Measurement Changes the Father–Son Earnings Link",
+    "section": "Sources and replication",
+    "text": "Sources and replication\n\nPSID Data Center, public-use extract J366590; University of Michigan, Survey Research Center. Variable definitions are documented in the PSID codebook; the private download includes a copy.\nFederal Reserve Bank of Minneapolis CPI historical table, annual CPI series compiled from BLS historical data.\nHaider, S., and G. Solon (2006). Life-Cycle Variation in the Association between Current and Lifetime Earnings. American Economic Review, 96(4), 1308–1320.\n\nFull Python and SQL files, variable mappings, and instructions are in the accompanying repository files. PSID raw records are kept out of the public repository."
+  },
+  {
+    "objectID": "blog/posts/post4/index.html",
+    "href": "blog/posts/post4/index.html",
+    "title": "Why the House Price Is Only Half the Story",
+    "section": "",
+    "text": "Between January 2019 and December 2024, U.S. home prices rose by about 58.3%, while the estimated monthly mortgage payment for an illustrative new purchase rose by about 102.8%. Why was the increase in the payment so much larger? For buyers who borrow, the listing price is only part of the decision: the interest rate also determines what they must pay each month. Comparing home prices and mortgage rates helps explain how the cost of financing a home changed over this period.\nTo explore that question, I combine three series from FRED: the Case-Shiller national home price index, Freddie Mac’s 30-year fixed mortgage rate, and the Consumer Price Index. The mortgage rates are averaged by month to match the other series. This is a descriptive comparison of national trends, rather than an estimate of the causal effect of monetary policy.\nThe first figure shows why looking at a dollar price alone can be misleading. By December 2024, nominal home prices were 58.3% above their January 2019 level. After adjustment for consumer-price inflation, the increase was smaller, at 25.9%. The smaller inflation-adjusted increase shows that home prices rose faster than the broader consumer basket, even after accounting for the decline in the purchasing power of a dollar. Both series start at 100 so their changes can be compared directly. These are national averages, which can conceal substantial local differences.\n\n\n\nFigure 1. Nominal and inflation-adjusted home prices, January 2019–December 2024.\n\n\nPrices are only the first part of the financing decision. The second figure shows that borrowing costs initially fell, then rose sharply after 2021. The monthly average mortgage rate increased from 4.5% in January 2019 to 6.7% in December 2024. For a given loan balance, a higher rate increases the payment needed to repay the mortgage over the same period. Lower rates early in the pandemic temporarily cushioned the effect of rising prices; later, buyers faced both a larger purchase price and more expensive credit.\n\n\n\nFigure 2. Monthly average 30-year fixed mortgage rates.\n\n\nThe third figure brings these two forces together. Consider an illustrative home worth $300,000 in January 2019. Let its value subsequently move with the national price index, assume a 20% down payment, and calculate principal and interest on a new 30-year fixed loan in each month. The estimated payment rises from $1,211 to $2,456, an increase of about 102.8%. This is a comparison of hypothetical new loans, not the changing payment on one existing fixed-rate mortgage.\n\n\n\nFigure 3. Estimated payments with observed rates and with the January 2019 rate held fixed.\n\n\nFor comparison, the dashed line holds the interest rate at its January 2019 value while allowing home prices to change. Under that scenario, the December 2024 payment would be approximately $1,917. The gap between the lines isolates the mechanical effect of changing the rate for the same month’s loan balance. It does not predict what house prices would actually have been if rates had stayed low: prices and financing conditions can influence one another.\nThe dollar payments also need context. Adjusting for consumer-price inflation, the increase in the estimated payment is about 61.3%, still substantial. But this calculation excludes property taxes, insurance, maintenance, closing costs, and changes in household income. The $300,000 starting value is an illustrative assumption, not an estimated national median. Holding the down-payment percentage constant also requires more cash as prices rise. Consequently, the figures measure financing pressure rather than a complete payment-to-income affordability ratio.\nThe takeaway is that slower price growth alone does not guarantee relief for new buyers. The price of the home and the price of borrowing jointly determine the monthly commitment. Evaluating a purchase therefore requires looking beyond the listing price to financing terms, upfront cash, and income. These figures show how that distinction became especially consequential between 2019 and 2024.\nData: Case-Shiller home price index, Freddie Mac mortgage rate, and BLS Consumer Price Index, retrieved from FRED on October 6, 2026. Code, data, and replication instructions: GitHub repository."
+  },
+  {
+    "objectID": "blog/posts/post2/index.html",
+    "href": "blog/posts/post2/index.html",
+    "title": "Growth, Job Openings, and Entry Barriers: Exploring Bright Outlook Careers",
+    "section": "",
+    "text": "A fast-growing occupation is not automatically a good career choice. It may offer few openings, require years of preparation, or pay less than a job seeker needs. A more useful question is: which occupations combine favorable prospects with preparation requirements and pay that fit the person considering them? I use O*NET OnLine to turn broad career-outlook labels into a practical starting point for that comparison."
+  },
+  {
+    "objectID": "blog/posts/post2/index.html#what-does-a-job-zone-actually-mean",
+    "href": "blog/posts/post2/index.html#what-does-a-job-zone-actually-mean",
+    "title": "Growth, Job Openings, and Entry Barriers: Exploring Bright Outlook Careers",
+    "section": "What does a Job Zone actually mean?",
+    "text": "What does a Job Zone actually mean?\nO*NET’s Job Zones combine education, related experience, and training. They are not degree categories or guarantees of entry. A bachelor’s degree often corresponds to Zone 4, for example, but it does not automatically qualify someone for every occupation in that zone.\n\n\n\n\n\n\n\nJob Zone in this dataset\nTypical preparation—not a universal credential requirement\n\n\n\n\n1–2\nHigh school/GED is common; some roles require less. Training can range from days to about a year.\n\n\n3\nVocational training, an associate degree, or substantial related experience; apprenticeships may matter.\n\n\n4\nA four-year bachelor’s degree is common, often alongside relevant experience or further training.\n\n\n5\nGraduate or professional education is common, together with extensive specialized preparation.\n\n\n\nA medical assistant in Zone 3 and a software developer in Zone 4 therefore represent different preparation routes—not simply “less college” and “more college.” Job Zone is a broad screening tool; occupation-specific requirements still need checking."
+  },
+  {
+    "objectID": "blog/posts/post2/index.html#where-do-growth-and-openings-overlap",
+    "href": "blog/posts/post2/index.html#where-do-growth-and-openings-overlap",
+    "title": "Growth, Job Openings, and Entry Barriers: Exploring Bright Outlook Careers",
+    "section": "Where do growth and openings overlap?",
+    "text": "Where do growth and openings overlap?\nI originally scraped the public Job Zone and Bright Outlook tables with R’s rvest, joining on occupation codes. The saved snapshot contains 346 Bright Outlook titles; 15 lack a matched Job Zone, leaving 331 for the figure. Saved inputs make this comparison reproducible without repeatedly requesting the website. The supplied refresh function requests only public pages, sequentially with a pause, and does not bypass access restrictions.\nThe figure distinguishes a rapid-growth flag, a numerous-openings flag, and their overlap. Growth concerns expansion; openings can also arise when workers leave or change occupations. Other O*NET designations can coexist with these flags.\n\n\n\n\n\n\nFigure 1: Bright Outlook occupation-title counts by preparation level. These are occupation categories, not job-opening counts.\n\n\n\nOf the 32 matched titles carrying both flags, 46.9% are in Zone 4, while 34.4% are in Zones 1–2, 12.5% in Zone 3, and 6.2% in Zone 5. Favorable outlooks therefore span several preparation routes. These shares describe the composition of the selected titles—not the probability that an occupation within a zone has a favorable outlook, nor the share of available jobs."
+  },
+  {
+    "objectID": "blog/posts/post2/index.html#from-categories-to-a-usable-shortlist",
+    "href": "blog/posts/post2/index.html#from-categories-to-a-usable-shortlist",
+    "title": "Growth, Job Openings, and Entry Barriers: Exploring Bright Outlook Careers",
+    "section": "From categories to a usable shortlist",
+    "text": "From categories to a usable shortlist\nThe following examples all carry both flags in the saved analysis snapshot. Their linked O*NET profiles supply national median annual wages for 2025, retrieved on October 26, 2026. The list snapshot and the wage-profile retrieval are separate vintages.\n\n\n\n\n\nOccupation\nJob Zone\nMedian annual wage (2025)\n\n\n\n\nConstruction Laborers\n1-2\n$47,120\n\n\nMedical Assistants\n3\n$45,690\n\n\nAccountants and Auditors\n4\n$83,680\n\n\nSoftware Developers\n4\n$135,980\n\n\n\n\n\nMedical assistants offer a Zone 3 route with a median of $45,690; someone considering it should check local training costs, duties, and certification expectations. For a reader with relevant degree-level preparation, accountants and auditors ($83,680) and software developers ($135,980) illustrate why the same Job Zone does not imply the same pay or skill requirements.\nA practical approach is to screen first for a feasible preparation route, then compare named occupations against a salary target. Before paying for training, inspect local vacancies and employer requirements, verify any licensing rules, and compare training time and cost with likely entry pay. National medians describe existing workers across experience levels; they are not starting-salary promises.\nSeveral limitations prevent treating this as a ranking of the “best” careers. The figure weights each occupation title equally, some titles share broader labor-market statistics, and unmatched titles are excluded. National projections do not establish local demand, hiring competition, work authorization eligibility, or working conditions. The four wage examples are illustrative, not representative of their zones, and do not estimate the return to education.\nThe takeaway is to use outlook flags to find possibilities, Job Zones to assess preparation, and occupation-specific pay and local requirements to decide what deserves further investigation. A favorable label begins the decision; it does not complete it."
+  },
+  {
+    "objectID": "blog/posts/post2/index.html#sources",
+    "href": "blog/posts/post2/index.html#sources",
+    "title": "Growth, Job Openings, and Entry Barriers: Exploring Bright Outlook Careers",
+    "section": "Sources",
+    "text": "Sources\nO*NET Job Zone table, Bright Outlook table, and Job Zone definitions. Individual wage-profile links appear in the table; their underlying wage source is the Bureau of Labor Statistics. See README.md for snapshot provenance, data locations, and replication."
+  },
+  {
+    "objectID": "blog/index.html",
+    "href": "blog/index.html",
+    "title": "Blog",
+    "section": "",
+    "text": "Is the Average Wait Longer Than 10 Minutes?\n\n\n\n\n\n\n\n\n\n\n\nNov 1, 2026\n\n\nYiran Zhang\n\n\n\n\n\n\n\n\n\n\n\n\nDoes Economic Growth Always Mean Longer Lives?\n\n\n\n\n\n\n\n\n\n\n\nOct 26, 2026\n\n\nYiran Zhang\n\n\n\n\n\n\n\n\n\n\n\n\nHow Income Measurement Changes the Father–Son Earnings Link\n\n\n\n\n\n\n\n\n\n\n\nOct 22, 2026\n\n\nYiran Zhang\n\n\n\n\n\n\n\n\n\n\n\n\nDoes Lower Rent Mean Affordable Housing?\n\n\nMapping rent and renter burdens in Philadelphia\n\n\n\n\n\n\n\n\nOct 19, 2026\n\n\nYiran Zhang\n\n\n\n\n\n\n\n\n\n\n\n\nWhy the House Price Is Only Half the Story\n\n\n\n\n\n\n\n\n\n\n\nOct 6, 2026\n\n\nYiran Zhang\n\n\n\n\n\n\n\n\n\n\n\n\nParenthood and the Gender Earnings Gap\n\n\n\n\n\n\n\n\n\n\n\nSep 28, 2026\n\n\nYiran Zhang\n\n\n\n\n\n\n\n\n\n\n\n\nGrowth, Job Openings, and Entry Barriers: Exploring Bright Outlook Careers\n\n\n\n\n\n\n\n\n\n\n\nSep 21, 2026\n\n\nyiran zhang\n\n\n\n\n\n\n\n\n\n\n\n\nOne Economy, Three Measures: Why Can GDP Be Measured Three Ways?\n\n\n\n\n\n\n\n\n\n\n\nSep 14, 2026\n\n\n\n\n\nNo matching items"
+  },
+  {
+    "objectID": "about.html",
+    "href": "about.html",
+    "title": "About",
+    "section": "",
+    "text": "About this site\n\n1 + 1\n\n[1] 2"
+  },
+  {
+    "objectID": "bio.html",
+    "href": "bio.html",
+    "title": "About Me",
+    "section": "",
+    "text": "Write a short biography here.\nInclude:"
+  },
+  {
+    "objectID": "bio.html#education",
+    "href": "bio.html#education",
+    "title": "About Me",
+    "section": "Education",
+    "text": "Education\nMaster of Applied Economics and Data Science, University of Pennsylvania (expaceted 2027) Batelor of Science, University Name 2026"
+  },
+  {
+    "objectID": "bio.html#interests",
+    "href": "bio.html#interests",
+    "title": "About Me",
+    "section": "Interests",
+    "text": "Interests\n\nEconometrics\nMachine Learning\nData Analysis"
+  },
+  {
+    "objectID": "bio.html#contact",
+    "href": "bio.html#contact",
+    "title": "About Me",
+    "section": "Contact",
+    "text": "Contact"
+  },
+  {
+    "objectID": "bio.html#studentemail.edu",
+    "href": "bio.html#studentemail.edu",
+    "title": "About Me",
+    "section": "student@email.edu",
+    "text": "student@email.edu"
+  },
+  {
+    "objectID": "blog/posts/post1/index.html",
+    "href": "blog/posts/post1/index.html",
+    "title": "One Economy, Three Measures: Why Can GDP Be Measured Three Ways?",
+    "section": "",
+    "text": "Gross Domestic Product (GDP) is one of the most familiar measures in economics. But there is something about GDP accounting that initially seems strange: economists can calculate GDP in three different ways—the production approach, the expenditure approach, and the income approach—and, in principle, obtain exactly the same answer.\nAt first, these approaches seem to measure completely different things. The production approach asks how much value an economy produces. The expenditure approach asks how much is spent on final goods and services. The income approach asks how much income is generated in the production process. Why should these three numbers be equal?"
+  },
+  {
+    "objectID": "blog/posts/post1/index.html#three-different-questions-one-answer",
+    "href": "blog/posts/post1/index.html#three-different-questions-one-answer",
+    "title": "One Economy, Three Measures: Why Can GDP Be Measured Three Ways?",
+    "section": "",
+    "text": "Gross Domestic Product (GDP) is one of the most familiar measures in economics. But there is something about GDP accounting that initially seems strange: economists can calculate GDP in three different ways—the production approach, the expenditure approach, and the income approach—and, in principle, obtain exactly the same answer.\nAt first, these approaches seem to measure completely different things. The production approach asks how much value an economy produces. The expenditure approach asks how much is spent on final goods and services. The income approach asks how much income is generated in the production process. Why should these three numbers be equal?"
+  },
+  {
+    "objectID": "blog/posts/post1/index.html#following-one-transaction",
+    "href": "blog/posts/post1/index.html#following-one-transaction",
+    "title": "One Economy, Three Measures: Why Can GDP Be Measured Three Ways?",
+    "section": "Following One Transaction",
+    "text": "Following One Transaction\nConsider a simple example. Suppose I buy a loaf of bread from a bakery for $5. From the expenditure side, this is straightforward: I have spent $5 on a final consumption good, so it contributes $5 to consumption.\nFrom the production side, we measure the value added in producing the bread. If the bakery uses $2 of flour produced by another firm and sells the bread for $5, the bakery adds $3 of value. The flour producer contributes the other $2. Across the whole production chain, total value added is therefore still $5. This is why GDP counts value added rather than simply adding up every transaction: otherwise intermediate goods such as flour would be counted twice.\nFinally, the value created through production generates income. Across the entire production chain, the $5 of value added ultimately appears as income, such as wages and profits. Thus, the same economic activity appears as $5 of production, $5 of expenditure, and $5 of income.\n\\[\n\\text{Production} = \\text{Expenditure} = \\text{Income}\n\\]"
+  },
+  {
+    "objectID": "blog/posts/post1/index.html#what-if-nobody-buys-the-bread",
+    "href": "blog/posts/post1/index.html#what-if-nobody-buys-the-bread",
+    "title": "One Economy, Three Measures: Why Can GDP Be Measured Three Ways?",
+    "section": "What If Nobody Buys the Bread?",
+    "text": "What If Nobody Buys the Bread?\nNow consider a less intuitive case. Suppose the $5 loaf is produced, but nobody buys it before the end of the accounting period. Has GDP fallen by $5?\nNo. The production approach has not changed: the bread was still produced during the period. What changes is its classification under the expenditure approach. Instead of appearing as $5 of consumption, the unsold bread is recorded as $5 of inventory investment. Therefore, total GDP is unchanged.\n\\[\nC \\downarrow \\$5,\\qquad I_{\\text{inventory}} \\uparrow \\$5\n\\]\nThe income approach also remains consistent. Income generated by production does not require the final product to have already been sold for cash. The unsold bread becomes an inventory asset of the firm. In national accounting, what matters is that production occurred during the period.\nThis reveals an important distinction: GDP measures current production, not simply current sales or cash receipts."
+  },
+  {
+    "objectID": "blog/posts/post1/index.html#the-takeaway",
+    "href": "blog/posts/post1/index.html#the-takeaway",
+    "title": "One Economy, Three Measures: Why Can GDP Be Measured Three Ways?",
+    "section": "The Takeaway",
+    "text": "The Takeaway\nThe three approaches to GDP are not three unrelated ways of estimating the economy. They are three perspectives on the same economic activity. Production creates value, expenditure purchases final output, and the production process generates income.\nOnce we follow a transaction through the economy, the identity becomes much less mysterious:\n\\[\n\\boxed{\\text{Production} = \\text{Expenditure} = \\text{Income}}\n\\]\nThe equality is not a coincidence. It is built into the way economic transactions connect buyers, producers, and income earners."
+  },
+  {
+    "objectID": "blog/posts/post3/index.html",
+    "href": "blog/posts/post3/index.html",
+    "title": "Parenthood and the Gender Earnings Gap",
+    "section": "",
+    "text": "Does the gender earnings gap become larger when people have children? A comparison of full-time workers suggests that it does. But that comparison leaves out people who reduce their hours or stop working, potentially hiding an important part of the story. To understand the pattern, we need to ask both what workers earn and who makes it into the comparison.\nI use the 2025 Annual Social and Economic Supplement (ASEC) of the CPS, accessed through IPUMS CPS. The starting sample contains 55,003 adults ages 25–54. Work and income refer to 2024; age and family relationships are measured in the 2025 survey. Every reported population mean and proportion uses the ASEC person weight, ASECWT, so observations contribute according to the population they represent.\nHere, “with children” means having one’s own biological, adopted, or stepchildren of any age living in the household (NCHILD &gt; 0). The other group can include parents whose children live elsewhere. This is therefore a comparison by household child presence, not by whether someone has ever become a parent."
+  },
+  {
+    "objectID": "blog/posts/post3/index.html#who-is-missing-from-a-full-time-comparison",
+    "href": "blog/posts/post3/index.html#who-is-missing-from-a-full-time-comparison",
+    "title": "Parenthood and the Gender Earnings Gap",
+    "section": "Who is missing from a full-time comparison?",
+    "text": "Who is missing from a full-time comparison?\nFigure 1 begins with everyone in the age group, including people without wage income. The left panel shows the share who worked at least one week in 2024. The right panel asks, among those who worked, how many usually worked fewer than 35 hours per week. These different denominators distinguish not working from working part-time; neither measure is the official survey-week employment rate.\n\n\n\n\n\n\nFigure 1: Annual work participation and part-time work by sex and presence of own children.\n\n\n\nWith co-resident children, 76.6% of women worked during the year, compared with 94.2% of men. Among those who worked, 20.4% of women usually worked part-time, versus 4.3% of men. Without co-resident children, the differences are smaller: annual work rates are 81.8% and 84.5%, respectively. The work measures include self-employed and unpaid family workers as well as employees.\nA full-time-only comparison removes part-time workers from view, while requiring year-round work also excludes people who work for only part of the year. Similar hours within the remaining sample cannot establish that work time is unimportant."
+  },
+  {
+    "objectID": "blog/posts/post3/index.html#what-do-the-workers-who-remain-earn",
+    "href": "blog/posts/post3/index.html#what-do-the-workers-who-remain-earn",
+    "title": "Parenthood and the Gender Earnings Gap",
+    "section": "What do the workers who remain earn?",
+    "text": "What do the workers who remain earn?\nNow restrict the comparison to positive-wage recipients who usually worked at least 35 hours per week for 50–52 weeks. This leaves 34,996 people. Figure 2 shows their weighted mean annual pre-tax wage and salary income, in 2024 dollars. It measures annual wage income, not hourly pay or total earnings from every source.\n\n\n\n\n\n\nFigure 2: Weighted mean annual wage income among full-time, full-year wage recipients.\n\n\n\nWithout co-resident children, men’s mean income is $85,376 and women’s is $76,826. With co-resident children, the means are $112,339 and $79,745. Higher male mean earnings across the two groups account for much of the larger parental gap. That is a descriptive comparison, not evidence that parenthood itself raises men’s pay: age, occupation, education, and other characteristics also differ."
+  },
+  {
+    "objectID": "blog/posts/post3/index.html#how-much-does-the-sample-matter",
+    "href": "blog/posts/post3/index.html#how-much-does-the-sample-matter",
+    "title": "Parenthood and the Gender Earnings Gap",
+    "section": "How much does the sample matter?",
+    "text": "How much does the sample matter?\nFigure 3 compares that restricted sample with all positive-wage recipients, including part-time and part-year workers. The gap is 100 × (1 − women’s weighted mean / men’s weighted mean).\n\n\n\n\n\n\nFigure 3: Gender wage-income gaps under two sample definitions. Both require positive wage income.\n\n\n\nWith co-resident children, the gap is 29.0% among full-time, full-year workers but 36.6% among all wage recipients. Without co-resident children, it changes only from 10.0% to 10.6%. The larger change for parents is consistent with the work-pattern differences in Figure 1. It is not a causal decomposition, and neither earnings sample includes people with zero wage income.\nThe lesson is that sample selection changes the question being answered. Income among full-time workers describes one part of the parental gender gap; participation and working time reveal another. These cross-sectional data cannot identify a causal motherhood penalty, especially because family status is observed after the income year. Income imputation and topcoding also affect measurement, and no survey-design confidence intervals are estimated. The figures describe weighted patterns, not statistically established causal effects."
+  },
+  {
+    "objectID": "blog/posts/post3/index.html#sources",
+    "href": "blog/posts/post3/index.html#sources",
+    "title": "Parenthood and the Gender Earnings Gap",
+    "section": "Sources",
+    "text": "Sources\nData: IPUMS CPS, 2025 ASEC. Variable documentation: NCHILD, WKSWORK1, UHRSWORKLY, INCWAGE, and ASECWT. Code, data access, and replication instructions are documented in README.md."
+  },
+  {
+    "objectID": "blog/posts/post5/index.html",
+    "href": "blog/posts/post5/index.html",
+    "title": "Does Lower Rent Mean Affordable Housing?",
+    "section": "",
+    "text": "Searching for an apartment in Philadelphia, it is natural to start with the monthly rent. A cheaper neighborhood seems like the obvious place to find affordable housing. But affordable for whom? A lower rent can still absorb a large share of a household’s income. Mapping both rent levels and renters’ financial burdens reveals why a city’s cheapest areas are not necessarily its least strained.\n\n\n\nTwo maps compare median monthly gross rent and the share of rent-burdened households across Philadelphia census tracts.\n\n\nThe maps tell different stories about the same city. Higher rents cluster around Center City, with additional expensive pockets elsewhere. Yet relatively light burdens appear in parts of that central area, while many tracts farther north and west show heavier burdens despite lower rents. The contrast matters because a rent map alone could direct attention away from places where residents struggle to pay. The same tract boundaries appear in both panels; darker blue means higher rent, whereas darker orange means a greater share of burdened renters.\nI compare Philadelphia census tracts, small statistical areas that do not necessarily follow neighborhood boundaries, using the U.S. Census Bureau’s 2020–2024 American Community Survey. These are five-year estimates, not a snapshot of 2024 or today’s advertised rents. Monthly gross rent includes rent and utilities. I define a rent-burdened household as one spending at least 30% of its income on those costs: for example, $900 out of $3,000 a month. The burden rate is the share of renter households meeting that threshold among those whose rent-to-income ratio can be calculated. It is not a ratio of neighborhood medians.\nTo make the comparison concrete, I retain 376 tracts with available rent and burden measures and at least 100 estimated renter households with a calculable ratio. This removes 32 tracts; gray areas are excluded, not places with zero rent or no hardship. Splitting the retained tracts at their median rent of approximately $1,370, the lower-rent half has a burden rate of 55.1%, compared with 49.2% in the higher-rent half. These rates pool household counts within each group, so a tract with more renters contributes more than a small tract.\nBut crossing the 30% threshold is only part of the story. A household spending 31% of its income on housing faces a different budget constraint from one spending 60%. To distinguish those experiences, I divide the same tracts into four groups by median rent and separate renters into three burden categories. Each group contains approximately the same number of tracts; the percentages still pool household counts.\n\n\n\nHousehold rent burdens by tract rent quartile, separating income shares below 30%, 30% to under 50%, and at least 50%.\n\n\nIn the lowest-rent quarter, 33.4% of renters with a computed ratio spend at least half their income on rent and utilities, compared with 20.8% in the highest-rent quarter. For these households, half or less of their income remains for food, transportation, health care, and everything else. Yet the pattern is not a smooth decline: the third rent group has a slightly higher severe-burden estimate than the lowest-rent group. Lower rent does not guarantee relief, and higher rent does not uniformly imply less pressure.\nTwo tracts illustrate the mismatch. Tract 36, southwest of City Hall, has a median gross rent of $553, yet 58.5% of renters with a computed ratio are burdened. Tract 8.06, near Center City, has a median rent of $2,454 but a burden rate of 25.3%. These examples illustrate the pattern rather than establish a ranking: they are survey estimates, and households and housing units differ across locations.\n\n\n\nA scatterplot shows considerable variation in rent burden at similar rent levels, highlighting tracts 36 and 8.06.\n\n\nThe scatterplot reinforces that caution. Each dot represents a tract, and neighborhoods with similar median rents can have very different burdens. Income differences and the sorting of households across locations could help explain the pattern, but these maps cannot identify their individual contributions. They do not show that higher rents reduce hardship, or that moving a particular household would improve its situation. Housing size, subsidies, student populations, and household composition may also matter.\nThere are limits to the comparison. Excluding ratios that cannot be computed means the rates do not cover all renter households; households reporting no or negative income and units without cash rent can fall outside that denominator. Small-area estimates also have sampling uncertainty. The count cutoff is not a guarantee of statistical precision. I therefore emphasize broad patterns rather than small differences between neighboring tracts or rent groups.\nPhiladelphia’s affordability problem is consequently easy to misread from prices alone. For residents comparing apartments, the relevant calculation is rent plus utilities relative to their own income. For identifying areas that may need support, burden rates add information that a low-rent label misses. Lower rents matter, but the map shows why they cannot, by themselves, tell us whether local renters can comfortably pay.\nData: U.S. Census Bureau, ACS 2020–2024, tables B25064 and B25070, retrieved through Census Reporter; tract geometry from its TIGER 2024 endpoint. Analysis code, cached source data, and replication instructions accompany this article."
+  },
+  {
     "objectID": "blog/posts/post7/index.html",
     "href": "blog/posts/post7/index.html",
     "title": "Does Economic Growth Always Mean Longer Lives?",
@@ -54,209 +264,6 @@
     "title": "Does Economic Growth Always Mean Longer Lives?",
     "section": "Sources and replication",
     "text": "Sources and replication\nData: Gapminder historical excerpt, distributed with Plotly Express. Methods: Plotly animations. See README.md for replication instructions."
-  },
-  {
-    "objectID": "blog/posts/post5/index.html",
-    "href": "blog/posts/post5/index.html",
-    "title": "Does Lower Rent Mean Affordable Housing?",
-    "section": "",
-    "text": "Searching for an apartment in Philadelphia, it is natural to start with the monthly rent. A cheaper neighborhood seems like the obvious place to find affordable housing. But affordable for whom? A lower rent can still absorb a large share of a household’s income. Mapping both rent levels and renters’ financial burdens reveals why a city’s cheapest areas are not necessarily its least strained.\n\n\n\nTwo maps compare median monthly gross rent and the share of rent-burdened households across Philadelphia census tracts.\n\n\nThe maps tell different stories about the same city. Higher rents cluster around Center City, with additional expensive pockets elsewhere. Yet relatively light burdens appear in parts of that central area, while many tracts farther north and west show heavier burdens despite lower rents. The contrast matters because a rent map alone could direct attention away from places where residents struggle to pay. The same tract boundaries appear in both panels; darker blue means higher rent, whereas darker orange means a greater share of burdened renters.\nI compare Philadelphia census tracts, small statistical areas that do not necessarily follow neighborhood boundaries, using the U.S. Census Bureau’s 2020–2024 American Community Survey. These are five-year estimates, not a snapshot of 2024 or today’s advertised rents. Monthly gross rent includes rent and utilities. I define a rent-burdened household as one spending at least 30% of its income on those costs: for example, $900 out of $3,000 a month. The burden rate is the share of renter households meeting that threshold among those whose rent-to-income ratio can be calculated. It is not a ratio of neighborhood medians.\nTo make the comparison concrete, I retain 376 tracts with available rent and burden measures and at least 100 estimated renter households with a calculable ratio. This removes 32 tracts; gray areas are excluded, not places with zero rent or no hardship. Splitting the retained tracts at their median rent of approximately $1,370, the lower-rent half has a burden rate of 55.1%, compared with 49.2% in the higher-rent half. These rates pool household counts within each group, so a tract with more renters contributes more than a small tract.\nBut crossing the 30% threshold is only part of the story. A household spending 31% of its income on housing faces a different budget constraint from one spending 60%. To distinguish those experiences, I divide the same tracts into four groups by median rent and separate renters into three burden categories. Each group contains approximately the same number of tracts; the percentages still pool household counts.\n\n\n\nHousehold rent burdens by tract rent quartile, separating income shares below 30%, 30% to under 50%, and at least 50%.\n\n\nIn the lowest-rent quarter, 33.4% of renters with a computed ratio spend at least half their income on rent and utilities, compared with 20.8% in the highest-rent quarter. For these households, half or less of their income remains for food, transportation, health care, and everything else. Yet the pattern is not a smooth decline: the third rent group has a slightly higher severe-burden estimate than the lowest-rent group. Lower rent does not guarantee relief, and higher rent does not uniformly imply less pressure.\nTwo tracts illustrate the mismatch. Tract 36, southwest of City Hall, has a median gross rent of $553, yet 58.5% of renters with a computed ratio are burdened. Tract 8.06, near Center City, has a median rent of $2,454 but a burden rate of 25.3%. These examples illustrate the pattern rather than establish a ranking: they are survey estimates, and households and housing units differ across locations.\n\n\n\nA scatterplot shows considerable variation in rent burden at similar rent levels, highlighting tracts 36 and 8.06.\n\n\nThe scatterplot reinforces that caution. Each dot represents a tract, and neighborhoods with similar median rents can have very different burdens. Income differences and the sorting of households across locations could help explain the pattern, but these maps cannot identify their individual contributions. They do not show that higher rents reduce hardship, or that moving a particular household would improve its situation. Housing size, subsidies, student populations, and household composition may also matter.\nThere are limits to the comparison. Excluding ratios that cannot be computed means the rates do not cover all renter households; households reporting no or negative income and units without cash rent can fall outside that denominator. Small-area estimates also have sampling uncertainty. The count cutoff is not a guarantee of statistical precision. I therefore emphasize broad patterns rather than small differences between neighboring tracts or rent groups.\nPhiladelphia’s affordability problem is consequently easy to misread from prices alone. For residents comparing apartments, the relevant calculation is rent plus utilities relative to their own income. For identifying areas that may need support, burden rates add information that a low-rent label misses. Lower rents matter, but the map shows why they cannot, by themselves, tell us whether local renters can comfortably pay.\nData: U.S. Census Bureau, ACS 2020–2024, tables B25064 and B25070, retrieved through Census Reporter; tract geometry from its TIGER 2024 endpoint. Analysis code, cached source data, and replication instructions accompany this article."
-  },
-  {
-    "objectID": "blog/posts/post3/index.html",
-    "href": "blog/posts/post3/index.html",
-    "title": "Parenthood and the Gender Earnings Gap",
-    "section": "",
-    "text": "Does the gender earnings gap become larger when people have children? A comparison of full-time workers suggests that it does. But that comparison leaves out people who reduce their hours or stop working, potentially hiding an important part of the story. To understand the pattern, we need to ask both what workers earn and who makes it into the comparison.\nI use the 2025 Annual Social and Economic Supplement (ASEC) of the CPS, accessed through IPUMS CPS. The starting sample contains 55,003 adults ages 25–54. Work and income refer to 2024; age and family relationships are measured in the 2025 survey. Every reported population mean and proportion uses the ASEC person weight, ASECWT, so observations contribute according to the population they represent.\nHere, “with children” means having one’s own biological, adopted, or stepchildren of any age living in the household (NCHILD &gt; 0). The other group can include parents whose children live elsewhere. This is therefore a comparison by household child presence, not by whether someone has ever become a parent."
-  },
-  {
-    "objectID": "blog/posts/post3/index.html#who-is-missing-from-a-full-time-comparison",
-    "href": "blog/posts/post3/index.html#who-is-missing-from-a-full-time-comparison",
-    "title": "Parenthood and the Gender Earnings Gap",
-    "section": "Who is missing from a full-time comparison?",
-    "text": "Who is missing from a full-time comparison?\nFigure 1 begins with everyone in the age group, including people without wage income. The left panel shows the share who worked at least one week in 2024. The right panel asks, among those who worked, how many usually worked fewer than 35 hours per week. These different denominators distinguish not working from working part-time; neither measure is the official survey-week employment rate.\n\n\n\n\n\n\nFigure 1: Annual work participation and part-time work by sex and presence of own children.\n\n\n\nWith co-resident children, 76.6% of women worked during the year, compared with 94.2% of men. Among those who worked, 20.4% of women usually worked part-time, versus 4.3% of men. Without co-resident children, the differences are smaller: annual work rates are 81.8% and 84.5%, respectively. The work measures include self-employed and unpaid family workers as well as employees.\nA full-time-only comparison removes part-time workers from view, while requiring year-round work also excludes people who work for only part of the year. Similar hours within the remaining sample cannot establish that work time is unimportant."
-  },
-  {
-    "objectID": "blog/posts/post3/index.html#what-do-the-workers-who-remain-earn",
-    "href": "blog/posts/post3/index.html#what-do-the-workers-who-remain-earn",
-    "title": "Parenthood and the Gender Earnings Gap",
-    "section": "What do the workers who remain earn?",
-    "text": "What do the workers who remain earn?\nNow restrict the comparison to positive-wage recipients who usually worked at least 35 hours per week for 50–52 weeks. This leaves 34,996 people. Figure 2 shows their weighted mean annual pre-tax wage and salary income, in 2024 dollars. It measures annual wage income, not hourly pay or total earnings from every source.\n\n\n\n\n\n\nFigure 2: Weighted mean annual wage income among full-time, full-year wage recipients.\n\n\n\nWithout co-resident children, men’s mean income is $85,376 and women’s is $76,826. With co-resident children, the means are $112,339 and $79,745. Higher male mean earnings across the two groups account for much of the larger parental gap. That is a descriptive comparison, not evidence that parenthood itself raises men’s pay: age, occupation, education, and other characteristics also differ."
-  },
-  {
-    "objectID": "blog/posts/post3/index.html#how-much-does-the-sample-matter",
-    "href": "blog/posts/post3/index.html#how-much-does-the-sample-matter",
-    "title": "Parenthood and the Gender Earnings Gap",
-    "section": "How much does the sample matter?",
-    "text": "How much does the sample matter?\nFigure 3 compares that restricted sample with all positive-wage recipients, including part-time and part-year workers. The gap is 100 × (1 − women’s weighted mean / men’s weighted mean).\n\n\n\n\n\n\nFigure 3: Gender wage-income gaps under two sample definitions. Both require positive wage income.\n\n\n\nWith co-resident children, the gap is 29.0% among full-time, full-year workers but 36.6% among all wage recipients. Without co-resident children, it changes only from 10.0% to 10.6%. The larger change for parents is consistent with the work-pattern differences in Figure 1. It is not a causal decomposition, and neither earnings sample includes people with zero wage income.\nThe lesson is that sample selection changes the question being answered. Income among full-time workers describes one part of the parental gender gap; participation and working time reveal another. These cross-sectional data cannot identify a causal motherhood penalty, especially because family status is observed after the income year. Income imputation and topcoding also affect measurement, and no survey-design confidence intervals are estimated. The figures describe weighted patterns, not statistically established causal effects."
-  },
-  {
-    "objectID": "blog/posts/post3/index.html#sources",
-    "href": "blog/posts/post3/index.html#sources",
-    "title": "Parenthood and the Gender Earnings Gap",
-    "section": "Sources",
-    "text": "Sources\nData: IPUMS CPS, 2025 ASEC. Variable documentation: NCHILD, WKSWORK1, UHRSWORKLY, INCWAGE, and ASECWT. Code, data access, and replication instructions are documented in README.md."
-  },
-  {
-    "objectID": "blog/posts/post1/index.html",
-    "href": "blog/posts/post1/index.html",
-    "title": "One Economy, Three Measures: Why Can GDP Be Measured Three Ways?",
-    "section": "",
-    "text": "Gross Domestic Product (GDP) is one of the most familiar measures in economics. But there is something about GDP accounting that initially seems strange: economists can calculate GDP in three different ways—the production approach, the expenditure approach, and the income approach—and, in principle, obtain exactly the same answer.\nAt first, these approaches seem to measure completely different things. The production approach asks how much value an economy produces. The expenditure approach asks how much is spent on final goods and services. The income approach asks how much income is generated in the production process. Why should these three numbers be equal?"
-  },
-  {
-    "objectID": "blog/posts/post1/index.html#three-different-questions-one-answer",
-    "href": "blog/posts/post1/index.html#three-different-questions-one-answer",
-    "title": "One Economy, Three Measures: Why Can GDP Be Measured Three Ways?",
-    "section": "",
-    "text": "Gross Domestic Product (GDP) is one of the most familiar measures in economics. But there is something about GDP accounting that initially seems strange: economists can calculate GDP in three different ways—the production approach, the expenditure approach, and the income approach—and, in principle, obtain exactly the same answer.\nAt first, these approaches seem to measure completely different things. The production approach asks how much value an economy produces. The expenditure approach asks how much is spent on final goods and services. The income approach asks how much income is generated in the production process. Why should these three numbers be equal?"
-  },
-  {
-    "objectID": "blog/posts/post1/index.html#following-one-transaction",
-    "href": "blog/posts/post1/index.html#following-one-transaction",
-    "title": "One Economy, Three Measures: Why Can GDP Be Measured Three Ways?",
-    "section": "Following One Transaction",
-    "text": "Following One Transaction\nConsider a simple example. Suppose I buy a loaf of bread from a bakery for $5. From the expenditure side, this is straightforward: I have spent $5 on a final consumption good, so it contributes $5 to consumption.\nFrom the production side, we measure the value added in producing the bread. If the bakery uses $2 of flour produced by another firm and sells the bread for $5, the bakery adds $3 of value. The flour producer contributes the other $2. Across the whole production chain, total value added is therefore still $5. This is why GDP counts value added rather than simply adding up every transaction: otherwise intermediate goods such as flour would be counted twice.\nFinally, the value created through production generates income. Across the entire production chain, the $5 of value added ultimately appears as income, such as wages and profits. Thus, the same economic activity appears as $5 of production, $5 of expenditure, and $5 of income.\n\\[\n\\text{Production} = \\text{Expenditure} = \\text{Income}\n\\]"
-  },
-  {
-    "objectID": "blog/posts/post1/index.html#what-if-nobody-buys-the-bread",
-    "href": "blog/posts/post1/index.html#what-if-nobody-buys-the-bread",
-    "title": "One Economy, Three Measures: Why Can GDP Be Measured Three Ways?",
-    "section": "What If Nobody Buys the Bread?",
-    "text": "What If Nobody Buys the Bread?\nNow consider a less intuitive case. Suppose the $5 loaf is produced, but nobody buys it before the end of the accounting period. Has GDP fallen by $5?\nNo. The production approach has not changed: the bread was still produced during the period. What changes is its classification under the expenditure approach. Instead of appearing as $5 of consumption, the unsold bread is recorded as $5 of inventory investment. Therefore, total GDP is unchanged.\n\\[\nC \\downarrow \\$5,\\qquad I_{\\text{inventory}} \\uparrow \\$5\n\\]\nThe income approach also remains consistent. Income generated by production does not require the final product to have already been sold for cash. The unsold bread becomes an inventory asset of the firm. In national accounting, what matters is that production occurred during the period.\nThis reveals an important distinction: GDP measures current production, not simply current sales or cash receipts."
-  },
-  {
-    "objectID": "blog/posts/post1/index.html#the-takeaway",
-    "href": "blog/posts/post1/index.html#the-takeaway",
-    "title": "One Economy, Three Measures: Why Can GDP Be Measured Three Ways?",
-    "section": "The Takeaway",
-    "text": "The Takeaway\nThe three approaches to GDP are not three unrelated ways of estimating the economy. They are three perspectives on the same economic activity. Production creates value, expenditure purchases final output, and the production process generates income.\nOnce we follow a transaction through the economy, the identity becomes much less mysterious:\n\\[\n\\boxed{\\text{Production} = \\text{Expenditure} = \\text{Income}}\n\\]\nThe equality is not a coincidence. It is built into the way economic transactions connect buyers, producers, and income earners."
-  },
-  {
-    "objectID": "bio.html",
-    "href": "bio.html",
-    "title": "About Me",
-    "section": "",
-    "text": "Write a short biography here.\nInclude:"
-  },
-  {
-    "objectID": "bio.html#education",
-    "href": "bio.html#education",
-    "title": "About Me",
-    "section": "Education",
-    "text": "Education\nMaster of Applied Economics and Data Science, University of Pennsylvania (expaceted 2027) Batelor of Science, University Name 2026"
-  },
-  {
-    "objectID": "bio.html#interests",
-    "href": "bio.html#interests",
-    "title": "About Me",
-    "section": "Interests",
-    "text": "Interests\n\nEconometrics\nMachine Learning\nData Analysis"
-  },
-  {
-    "objectID": "bio.html#contact",
-    "href": "bio.html#contact",
-    "title": "About Me",
-    "section": "Contact",
-    "text": "Contact"
-  },
-  {
-    "objectID": "bio.html#studentemail.edu",
-    "href": "bio.html#studentemail.edu",
-    "title": "About Me",
-    "section": "student@email.edu",
-    "text": "student@email.edu"
-  },
-  {
-    "objectID": "about.html",
-    "href": "about.html",
-    "title": "About",
-    "section": "",
-    "text": "About this site\n\n1 + 1\n\n[1] 2"
-  },
-  {
-    "objectID": "blog/index.html",
-    "href": "blog/index.html",
-    "title": "Blog",
-    "section": "",
-    "text": "Does Economic Growth Always Mean Longer Lives?\n\n\n\n\n\n\n\n\n\n\n\nOct 26, 2026\n\n\nYiran Zhang\n\n\n\n\n\n\n\n\n\n\n\n\nHow Income Measurement Changes the Father–Son Earnings Link\n\n\n\n\n\n\n\n\n\n\n\nOct 22, 2026\n\n\nYiran Zhang\n\n\n\n\n\n\n\n\n\n\n\n\nDoes Lower Rent Mean Affordable Housing?\n\n\nMapping rent and renter burdens in Philadelphia\n\n\n\n\n\n\n\n\nOct 19, 2026\n\n\nYiran Zhang\n\n\n\n\n\n\n\n\n\n\n\n\nWhy the House Price Is Only Half the Story\n\n\n\n\n\n\n\n\n\n\n\nOct 6, 2026\n\n\nYiran Zhang\n\n\n\n\n\n\n\n\n\n\n\n\nParenthood and the Gender Earnings Gap\n\n\n\n\n\n\n\n\n\n\n\nSep 28, 2026\n\n\nYiran Zhang\n\n\n\n\n\n\n\n\n\n\n\n\nGrowth, Job Openings, and Entry Barriers: Exploring Bright Outlook Careers\n\n\n\n\n\n\n\n\n\n\n\nSep 21, 2026\n\n\nyiran zhang\n\n\n\n\n\n\n\n\n\n\n\n\nOne Economy, Three Measures: Why Can GDP Be Measured Three Ways?\n\n\n\n\n\n\n\n\n\n\n\nSep 14, 2026\n\n\n\n\n\nNo matching items"
-  },
-  {
-    "objectID": "blog/posts/post2/index.html",
-    "href": "blog/posts/post2/index.html",
-    "title": "Growth, Job Openings, and Entry Barriers: Exploring Bright Outlook Careers",
-    "section": "",
-    "text": "A fast-growing occupation is not automatically a good career choice. It may offer few openings, require years of preparation, or pay less than a job seeker needs. A more useful question is: which occupations combine favorable prospects with preparation requirements and pay that fit the person considering them? I use O*NET OnLine to turn broad career-outlook labels into a practical starting point for that comparison."
-  },
-  {
-    "objectID": "blog/posts/post2/index.html#what-does-a-job-zone-actually-mean",
-    "href": "blog/posts/post2/index.html#what-does-a-job-zone-actually-mean",
-    "title": "Growth, Job Openings, and Entry Barriers: Exploring Bright Outlook Careers",
-    "section": "What does a Job Zone actually mean?",
-    "text": "What does a Job Zone actually mean?\nO*NET’s Job Zones combine education, related experience, and training. They are not degree categories or guarantees of entry. A bachelor’s degree often corresponds to Zone 4, for example, but it does not automatically qualify someone for every occupation in that zone.\n\n\n\n\n\n\n\nJob Zone in this dataset\nTypical preparation—not a universal credential requirement\n\n\n\n\n1–2\nHigh school/GED is common; some roles require less. Training can range from days to about a year.\n\n\n3\nVocational training, an associate degree, or substantial related experience; apprenticeships may matter.\n\n\n4\nA four-year bachelor’s degree is common, often alongside relevant experience or further training.\n\n\n5\nGraduate or professional education is common, together with extensive specialized preparation.\n\n\n\nA medical assistant in Zone 3 and a software developer in Zone 4 therefore represent different preparation routes—not simply “less college” and “more college.” Job Zone is a broad screening tool; occupation-specific requirements still need checking."
-  },
-  {
-    "objectID": "blog/posts/post2/index.html#where-do-growth-and-openings-overlap",
-    "href": "blog/posts/post2/index.html#where-do-growth-and-openings-overlap",
-    "title": "Growth, Job Openings, and Entry Barriers: Exploring Bright Outlook Careers",
-    "section": "Where do growth and openings overlap?",
-    "text": "Where do growth and openings overlap?\nI originally scraped the public Job Zone and Bright Outlook tables with R’s rvest, joining on occupation codes. The saved snapshot contains 346 Bright Outlook titles; 15 lack a matched Job Zone, leaving 331 for the figure. Saved inputs make this comparison reproducible without repeatedly requesting the website. The supplied refresh function requests only public pages, sequentially with a pause, and does not bypass access restrictions.\nThe figure distinguishes a rapid-growth flag, a numerous-openings flag, and their overlap. Growth concerns expansion; openings can also arise when workers leave or change occupations. Other O*NET designations can coexist with these flags.\n\n\n\n\n\n\nFigure 1: Bright Outlook occupation-title counts by preparation level. These are occupation categories, not job-opening counts.\n\n\n\nOf the 32 matched titles carrying both flags, 46.9% are in Zone 4, while 34.4% are in Zones 1–2, 12.5% in Zone 3, and 6.2% in Zone 5. Favorable outlooks therefore span several preparation routes. These shares describe the composition of the selected titles—not the probability that an occupation within a zone has a favorable outlook, nor the share of available jobs."
-  },
-  {
-    "objectID": "blog/posts/post2/index.html#from-categories-to-a-usable-shortlist",
-    "href": "blog/posts/post2/index.html#from-categories-to-a-usable-shortlist",
-    "title": "Growth, Job Openings, and Entry Barriers: Exploring Bright Outlook Careers",
-    "section": "From categories to a usable shortlist",
-    "text": "From categories to a usable shortlist\nThe following examples all carry both flags in the saved analysis snapshot. Their linked O*NET profiles supply national median annual wages for 2025, retrieved on October 26, 2026. The list snapshot and the wage-profile retrieval are separate vintages.\n\n\n\n\n\nOccupation\nJob Zone\nMedian annual wage (2025)\n\n\n\n\nConstruction Laborers\n1-2\n$47,120\n\n\nMedical Assistants\n3\n$45,690\n\n\nAccountants and Auditors\n4\n$83,680\n\n\nSoftware Developers\n4\n$135,980\n\n\n\n\n\nMedical assistants offer a Zone 3 route with a median of $45,690; someone considering it should check local training costs, duties, and certification expectations. For a reader with relevant degree-level preparation, accountants and auditors ($83,680) and software developers ($135,980) illustrate why the same Job Zone does not imply the same pay or skill requirements.\nA practical approach is to screen first for a feasible preparation route, then compare named occupations against a salary target. Before paying for training, inspect local vacancies and employer requirements, verify any licensing rules, and compare training time and cost with likely entry pay. National medians describe existing workers across experience levels; they are not starting-salary promises.\nSeveral limitations prevent treating this as a ranking of the “best” careers. The figure weights each occupation title equally, some titles share broader labor-market statistics, and unmatched titles are excluded. National projections do not establish local demand, hiring competition, work authorization eligibility, or working conditions. The four wage examples are illustrative, not representative of their zones, and do not estimate the return to education.\nThe takeaway is to use outlook flags to find possibilities, Job Zones to assess preparation, and occupation-specific pay and local requirements to decide what deserves further investigation. A favorable label begins the decision; it does not complete it."
-  },
-  {
-    "objectID": "blog/posts/post2/index.html#sources",
-    "href": "blog/posts/post2/index.html#sources",
-    "title": "Growth, Job Openings, and Entry Barriers: Exploring Bright Outlook Careers",
-    "section": "Sources",
-    "text": "Sources\nO*NET Job Zone table, Bright Outlook table, and Job Zone definitions. Individual wage-profile links appear in the table; their underlying wage source is the Bureau of Labor Statistics. See README.md for snapshot provenance, data locations, and replication."
-  },
-  {
-    "objectID": "blog/posts/post4/index.html",
-    "href": "blog/posts/post4/index.html",
-    "title": "Why the House Price Is Only Half the Story",
-    "section": "",
-    "text": "Between January 2019 and December 2024, U.S. home prices rose by about 58.3%, while the estimated monthly mortgage payment for an illustrative new purchase rose by about 102.8%. Why was the increase in the payment so much larger? For buyers who borrow, the listing price is only part of the decision: the interest rate also determines what they must pay each month. Comparing home prices and mortgage rates helps explain how the cost of financing a home changed over this period.\nTo explore that question, I combine three series from FRED: the Case-Shiller national home price index, Freddie Mac’s 30-year fixed mortgage rate, and the Consumer Price Index. The mortgage rates are averaged by month to match the other series. This is a descriptive comparison of national trends, rather than an estimate of the causal effect of monetary policy.\nThe first figure shows why looking at a dollar price alone can be misleading. By December 2024, nominal home prices were 58.3% above their January 2019 level. After adjustment for consumer-price inflation, the increase was smaller, at 25.9%. The smaller inflation-adjusted increase shows that home prices rose faster than the broader consumer basket, even after accounting for the decline in the purchasing power of a dollar. Both series start at 100 so their changes can be compared directly. These are national averages, which can conceal substantial local differences.\n\n\n\nFigure 1. Nominal and inflation-adjusted home prices, January 2019–December 2024.\n\n\nPrices are only the first part of the financing decision. The second figure shows that borrowing costs initially fell, then rose sharply after 2021. The monthly average mortgage rate increased from 4.5% in January 2019 to 6.7% in December 2024. For a given loan balance, a higher rate increases the payment needed to repay the mortgage over the same period. Lower rates early in the pandemic temporarily cushioned the effect of rising prices; later, buyers faced both a larger purchase price and more expensive credit.\n\n\n\nFigure 2. Monthly average 30-year fixed mortgage rates.\n\n\nThe third figure brings these two forces together. Consider an illustrative home worth $300,000 in January 2019. Let its value subsequently move with the national price index, assume a 20% down payment, and calculate principal and interest on a new 30-year fixed loan in each month. The estimated payment rises from $1,211 to $2,456, an increase of about 102.8%. This is a comparison of hypothetical new loans, not the changing payment on one existing fixed-rate mortgage.\n\n\n\nFigure 3. Estimated payments with observed rates and with the January 2019 rate held fixed.\n\n\nFor comparison, the dashed line holds the interest rate at its January 2019 value while allowing home prices to change. Under that scenario, the December 2024 payment would be approximately $1,917. The gap between the lines isolates the mechanical effect of changing the rate for the same month’s loan balance. It does not predict what house prices would actually have been if rates had stayed low: prices and financing conditions can influence one another.\nThe dollar payments also need context. Adjusting for consumer-price inflation, the increase in the estimated payment is about 61.3%, still substantial. But this calculation excludes property taxes, insurance, maintenance, closing costs, and changes in household income. The $300,000 starting value is an illustrative assumption, not an estimated national median. Holding the down-payment percentage constant also requires more cash as prices rise. Consequently, the figures measure financing pressure rather than a complete payment-to-income affordability ratio.\nThe takeaway is that slower price growth alone does not guarantee relief for new buyers. The price of the home and the price of borrowing jointly determine the monthly commitment. Evaluating a purchase therefore requires looking beyond the listing price to financing terms, upfront cash, and income. These figures show how that distinction became especially consequential between 2019 and 2024.\nData: Case-Shiller home price index, Freddie Mac mortgage rate, and BLS Consumer Price Index, retrieved from FRED on October 6, 2026. Code, data, and replication instructions: GitHub repository."
-  },
-  {
-    "objectID": "blog/posts/post6/index.html",
-    "href": "blog/posts/post6/index.html",
-    "title": "How Income Measurement Changes the Father–Son Earnings Link",
-    "section": "",
-    "text": "How much does a father’s income tell us about his son’s income? Before estimating that relationship, we must decide when to measure earnings. A salary early in a career can give a different picture from earnings in middle age. I use PSID data to ask how the estimated father–son link changes with the son’s age and with the number of income observations used."
-  },
-  {
-    "objectID": "blog/posts/post6/index.html#matching-fathers-and-sons",
-    "href": "blog/posts/post6/index.html#matching-fathers-and-sons",
-    "title": "How Income Measurement Changes the Father–Son Earnings Link",
-    "section": "Matching fathers and sons",
-    "text": "Matching fathers and sons\nI focus on biological fathers and sons to keep this parent–child matching demonstration manageable. Mothers and daughters are outside the scope of this example, so the results describe father–son wage persistence rather than parent–child relationships more broadly.\nThe PSID follows individuals across survey waves. I rename ER30001 and ER30002 as family_id and person_no; together they identify a person. ER32016 and ER32017 become father_family_id and father_person_no, identifying the biological father. ER32000 records sex. A family ID alone is insufficient because relatives can share it. I combine each person’s two identifiers into a stable person_id.\nI load the extract into Python, create a SQLite connection with sqlite3.connect(), and write a people table and an income table using DataFrame.to_sql(). The following query constructs the father–son pairs:\nSELECT c.person_id AS child_id, p.person_id AS father_id\nFROM people AS c\nJOIN people AS p\n  ON c.father_family_id = p.family_id\n AND c.father_person_no = p.person_no\nWHERE c.sex = 1 AND p.sex = 1\n  AND c.father_family_id &gt; 0 AND c.father_person_no &gt; 0;\nSELECT chooses the output columns. JOIN connects two copies of the person table using both father identifiers. WHERE restricts the sample to men with recorded father identifiers. The full script checks that each son has at most one matched father."
-  },
-  {
-    "objectID": "blog/posts/post6/index.html#from-annual-wages-to-longer-run-earnings",
-    "href": "blog/posts/post6/index.html#from-annual-wages-to-longer-run-earnings",
-    "title": "How Income Measurement Changes the Father–Son Earnings Link",
-    "section": "From annual wages to longer-run earnings",
-    "text": "From annual wages to longer-run earnings\nI use annual wages and salaries reported in survey waves from 1970 through 2023, generally referring to the previous calendar year. Earlier wage variables are brackets rather than dollar amounts, so I omit them. I convert wages into 2022 dollars using annual CPI, exclude nonpositive and special-coded amounts, and retain current household heads/reference persons. This prevents assigning a household head’s wages to every family member. The Data Center links family wage variables to individual records using each wave’s family interview number. That changing household identifier serves a different purpose from the stable identifiers used to match fathers and sons.\nTo use other years, retain the person and father identifiers, then request each chosen wave’s wages, age, relationship, sequence number, and family interview number. For example, the 1970 wave uses V1191 for wages and ER30046 for age. data/variable_map.csv lists all wave-specific fields. Update the script’s years and corresponding income_vars together, check codebook definitions and special codes, and provide CPI for the income years. The father–son join stays the same.\nFathers’ wages are measured at ages 35–44. Sons’ wages are measured at 25–29 and again at 40–44. I approximate income-year age as interview age minus one. To calculate fathers’ averages in SQL:\nSELECT person_id, AVG(earnings) AS father_mean,\n       COUNT(*) AS father_n\nFROM income\nWHERE age BETWEEN 35 AND 44\nGROUP BY person_id\nHAVING COUNT(*) &gt;= 3;\nGROUP BY collects records for each person; AVG and COUNT aggregate them. HAVING keeps fathers with at least three valid observations. Analogous queries require at least two observations in each son’s age window. These are averages of observed positive-wage years, not necessarily consecutive years: PSID became biennial after 1997.\nThe resulting balanced sample contains 768 father–son pairs and 592 distinct fathers. Every specification uses these same pairs. For a single-year measure, I select the observation nearest age 40 for fathers, 27 for younger sons, and 42 for middle-aged sons; an earlier wave breaks ties."
-  },
-  {
-    "objectID": "blog/posts/post6/index.html#what-changes-when-earnings-are-measured-differently",
-    "href": "blog/posts/post6/index.html#what-changes-when-earnings-are-measured-differently",
-    "title": "How Income Measurement Changes the Father–Son Earnings Link",
-    "section": "What changes when earnings are measured differently?",
-    "text": "What changes when earnings are measured differently?\nI read the SQL results into pandas with pd.read_sql_query(), then regress log son wages on log father wages, an intercept, and a linear son birth-cohort control. The coefficient on log father wages is the intergenerational elasticity, or IGE. A coefficient of 0.4 means that 1% higher father wages are associated with approximately 0.4% higher son wages; this is an association, not a causal effect.\n\n\n\nFather–son wage elasticities using single-year and averaged income.\n\n\nAt ages 25–29, the IGE is 0.284 using single-year wages and 0.310 using averages. At ages 40–44, it is 0.310 and 0.514, respectively. Averaging changes the middle-age estimate substantially. The intervals in the figure allow for siblings sharing a father.\nTwo measurement issues matter. Temporary wage fluctuations make one year a noisy proxy for long-run earnings; averaging can reduce that noise. Life-cycle bias is different: younger workers with different eventual earnings may have different wage-growth paths. The higher averaged estimate at ages 40–44 illustrates sensitivity to measurement age, consistent with Haider and Solon (2006). Averaging early-career wages alone does not solve this problem.\nThese unweighted estimates describe a selected sample of men with positive wages, head/reference-person status, and long follow-up. They are not a national mobility estimate. Lifetime earnings are unobserved, so the middle-age estimate is not a known truth, and the comparisons do not isolate every source of bias. The practical lesson is to match people carefully, average repeated observations, and check measurement age before interpreting an IGE."
-  },
-  {
-    "objectID": "blog/posts/post6/index.html#sources-and-replication",
-    "href": "blog/posts/post6/index.html#sources-and-replication",
-    "title": "How Income Measurement Changes the Father–Son Earnings Link",
-    "section": "Sources and replication",
-    "text": "Sources and replication\n\nPSID Data Center, public-use extract J366590; University of Michigan, Survey Research Center. Variable definitions are documented in the PSID codebook; the private download includes a copy.\nFederal Reserve Bank of Minneapolis CPI historical table, annual CPI series compiled from BLS historical data.\nHaider, S., and G. Solon (2006). Life-Cycle Variation in the Association between Current and Lifetime Earnings. American Economic Review, 96(4), 1308–1320.\n\nFull Python and SQL files, variable mappings, and instructions are in the accompanying repository files. PSID raw records are kept out of the public repository."
   },
   {
     "objectID": "index.html",
