@@ -5,7 +5,7 @@
 - `data/tickers.txt` contains the 95 tickers in the course script and SPY.
 - Yahoo Finance is the market data source. If `data/prices.csv` is present, it is the input snapshot for the delivered run. The course game summary uses 45 complete pairs from the Fall 2026 Canvas workbook (see below).
 
-Run from this folder using Python 3.10 or newer.
+Run from this folder using Python 3.12 or newer.
 
 ```sh
 python -m pip install numpy pandas matplotlib xgboost-cpu==3.4.1
