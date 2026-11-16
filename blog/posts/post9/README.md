@@ -8,7 +8,7 @@
 Run from this folder using Python 3.10 or newer.
 
 ```sh
-python -m pip install -r requirements.txt
+python -m pip install numpy pandas matplotlib xgboost-cpu==3.4.1
 python download_prices.py
 python backtest.py
 quarto render index.qmd
