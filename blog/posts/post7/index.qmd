@@ -4,6 +4,7 @@ author: "Yiran Zhang"
 date: "2026-10-26"
 date-format: long
 categories: [Python, Plotly, Economic Development]
+image: cover.png
 format:
   html:
     toc: true
